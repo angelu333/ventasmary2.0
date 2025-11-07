@@ -7,7 +7,6 @@ function agregarProducto() {
     
     if (nombre && precio > 0) {
         productoActual = { nombre: nombre, precio: precio };
-        document.getElementById('welcomeSection').style.display = 'none';
         document.getElementById('producto-form').style.display = 'none';
         document.getElementById('cliente-form').style.display = 'block';
         
@@ -16,6 +15,11 @@ function agregarProducto() {
         if (modalMasivo) {
             modalMasivo.textContent = `Registro Masivo - ${nombre}`;
         }
+        
+        // Enfocar el campo de nombre de clienta
+        setTimeout(() => {
+            document.getElementById('nombreClienta').focus();
+        }, 100);
     } else {
         mostrarNotificacion('Por favor, ingrese un nombre y precio válido para el producto.', 'error');
     }
@@ -25,7 +29,6 @@ function agregarProducto() {
 function finalizarProducto() {
     document.getElementById('nombreProducto').value = '';
     document.getElementById('precioProducto').value = '';
-    document.getElementById('welcomeSection').style.display = 'block';
     document.getElementById('producto-form').style.display = 'block';
     document.getElementById('cliente-form').style.display = 'none';
     
@@ -34,8 +37,16 @@ function finalizarProducto() {
     document.getElementById('colorProducto').value = '';
     document.getElementById('cantidadProducto').value = '1';
     
+    // Limpiar producto actual
+    productoActual = {};
+    
     // Actualizar estadísticas
     actualizarEstadisticasRapidas();
+    
+    // Enfocar el campo de nombre de producto
+    setTimeout(() => {
+        document.getElementById('nombreProducto').focus();
+    }, 100);
 }
 
 // Calcular total de ventas

@@ -74,19 +74,11 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
     }, 4000);
 }
 
-// Actualizar estadísticas rápidas
+// Actualizar estadísticas rápidas (ya no se usa pero se mantiene por compatibilidad)
 function actualizarEstadisticasRapidas() {
-    const totalVentas = calcularTotalVentas();
-    const totalClientas = Object.keys(pedidos).length;
-    const totalProductos = calcularTotalProductos();
-
-    const ventasEl = document.getElementById('quickTotalVentas');
-    const clientasEl = document.getElementById('quickTotalClientas');
-    const productosEl = document.getElementById('quickTotalProductos');
-
-    if (ventasEl) ventasEl.textContent = totalVentas;
-    if (clientasEl) clientasEl.textContent = totalClientas;
-    if (productosEl) productosEl.textContent = totalProductos;
+    // Esta función ya no hace nada porque eliminamos la sección de estadísticas
+    // Se mantiene para evitar errores en otras partes del código
+    return;
 }
 
 // Toggle sidebar
@@ -125,13 +117,29 @@ function cerrarSidebar() {
 
 // Ir a inicio
 function irAInicio() {
+    // Limpiar resumen
     document.getElementById('resumen').innerHTML = '';
-    document.getElementById('welcomeSection').style.display = 'block';
+    
+    // Mostrar formulario de productos
     document.getElementById('producto-form').style.display = 'block';
     document.getElementById('cliente-form').style.display = 'none';
+    
+    // Limpiar campos
+    document.getElementById('nombreProducto').value = '';
+    document.getElementById('precioProducto').value = '';
+    document.getElementById('nombreClienta').value = '';
+    document.getElementById('colorProducto').value = '';
+    document.getElementById('cantidadProducto').value = '1';
+    
+    // Limpiar producto actual
+    productoActual = {};
 
     cerrarSidebar();
-    actualizarEstadisticasRapidas();
+    
+    // Enfocar el campo de nombre de producto
+    setTimeout(() => {
+        document.getElementById('nombreProducto').focus();
+    }, 100);
 }
 
 // Abrir modal
