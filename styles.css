@@ -1800,4 +1800,130 @@ TILOS PARA MODO MASIVO ===== */
   opacity: 0;
   visibility: hidden;
   transition: all 0.5s ease;
+}/* ===== 
+ESTILOS PARA RECONOCIMIENTO DE VOZ ===== */
+
+/* Botón de voz */
+.btn-voice {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  color: var(--white);
+  border: 2px solid #ff6b6b;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-voice:hover {
+  background: linear-gradient(135deg, #ee5a52, #ff6b6b);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.btn-voice.listening {
+  background: linear-gradient(135deg, #ff4757, #c44569);
+  animation: voicePulse 1.5s infinite;
+}
+
+.btn-voice.processing {
+  background: linear-gradient(135deg, #ffa502, #ff6348);
+  animation: voiceProcessing 1s infinite;
+}
+
+/* Animaciones de voz */
+@keyframes voicePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+  }
+}
+
+@keyframes voiceProcessing {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Modal de confirmación de voz */
+.voice-confirmation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--white);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.voice-confirmation h3 {
+  color: var(--warm-800);
+  margin-bottom: var(--space-4);
+}
+
+.voice-confirmation .recognized-text {
+  background: var(--warm-50);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin: var(--space-4) 0;
+  border-left: 4px solid var(--primary-color);
+}
+
+.voice-confirmation .actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+/* Indicador de escucha */
+.voice-indicator {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 107, 107, 0.95);
+  color: var(--white);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-xl);
+  font-weight: 500;
+  z-index: 1500;
+  backdrop-filter: blur(10px);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive para voz */
+@media (max-width: 768px) {
+  .voice-confirmation {
+    width: 95%;
+    padding: var(--space-4);
+  }
+  
+  .voice-confirmation .actions {
+    flex-direction: column;
+  }
+  
+  .voice-indicator {
+    top: 90px;
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-4);
+  }
 }
