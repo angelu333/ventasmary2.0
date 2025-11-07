@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Colores - Ventas Mary</title>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div style="padding: 20px; max-width: 800px; margin: 0 auto;">
+        <h1 style="color: var(--warm-800); text-align: center; margin-bottom: 30px;">
+            🎨 Nueva Paleta de Colores - Ventas Mary
+        </h1>
+        
+        <!-- Paleta de colores -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px;">
+            <div style="background: var(--primary-color); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+                <strong>Primario</strong><br>
+                Dorado Suave<br>
+                #d4a574
+            </div>
+            <div style="background: var(--secondary-color); color: var(--warm-800); padding: 20px; border-radius: 12px; text-align: center;">
+                <strong>Secundario</strong><br>
+                Rosa Suave<br>
+                #e8b4b8
+            </div>
+            <div style="background: var(--accent-color); color: var(--warm-800); padding: 20px; border-radius: 12px; text-align: center;">
+                <strong>Acento</strong><br>
+                Amarillo Cálido<br>
+                #f7d794
+            </div>
+        </div>
+
+        <!-- Ejemplos de componentes -->
+        <div class="welcome-card" style="margin-bottom: 30px;">
+            <div class="welcome-icon">
+                <i data-feather="sparkles"></i>
+            </div>
+            <h2 class="welcome-title">¡Bienvenida a Ventas Mary!</h2>
+            <p class="welcome-subtitle">Gestiona tus ventas de belleza de manera profesional</p>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <div class="stat-item">
+                    <div class="stat-value">1,250</div>
+                    <div class="stat-label">Ventas Totales</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">45</div>
+                    <div class="stat-label">Clientas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de ejemplo -->
+        <div class="form-card" style="margin-bottom: 30px;">
+            <div class="form-header">
+                <div class="form-icon">
+                    <i data-feather="plus-circle"></i>
+                </div>
+                <h3 class="form-title">Ejemplo de Formulario</h3>
+                <p class="form-subtitle">Con la nueva paleta de colores cálidos</p>
+            </div>
+            <div style="padding: 30px;">
+                <div style="margin-bottom: 20px;">
+                    <label class="input-label">
+                        <i data-feather="tag"></i>
+                        Nombre del Producto
+                    </label>
+                    <input type="text" class="form-input" placeholder="Ej: Esmalte de uñas rojo" value="Ejemplo de texto">
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn btn-primary">
+                        <i data-feather="check"></i>
+                        Botón Primario
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i data-feather="users"></i>
+                        Botón Secundario
+                    </button>
+                    <button class="btn btn-outline">
+                        <i data-feather="x"></i>
+                        Botón Outline
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ejemplo de resumen -->
+        <div style="background: var(--white); border-radius: 1.5rem; padding: 30px; box-shadow: 0 10px 25px rgba(212, 165, 116, 0.15); border: 1px solid var(--warm-200);">
+            <h3 style="color: var(--warm-800); margin-bottom: 20px;">
+                <i data-feather="bar-chart-2"></i> Ejemplo de Resumen
+            </h3>
+            <div class="clienta-pedido">
+                <div class="clienta-header">
+                    <strong><i data-feather="user"></i> María González</strong>
+                </div>
+                <div class="pedido-item" style="margin: 10px 0;">
+                    <span class="producto-info">
+                        <i data-feather="package"></i>
+                        Esmalte Rojo <span class="color-tag">Brillante</span>
+                    </span>
+                    <span class="cantidad-info">2 x $15</span>
+                    <span class="subtotal-info">$30</span>
+                </div>
+                <div class="clienta-total">
+                    <strong>Total: $30</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paleta de grises cálidos -->
+        <div style="margin-top: 40px;">
+            <h3 style="color: var(--warm-800); margin-bottom: 20px;">Escala de Grises Cálidos</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <div style="background: var(--warm-50); color: var(--warm-800); padding: 15px; border-radius: 8px; min-width: 120px; text-align: center; border: 1px solid var(--warm-200);">
+                    warm-50<br><small>#fdf8f3</small>
+                </div>
+                <div style="background: var(--warm-100); color: var(--warm-800); padding: 15px; border-radius: 8px; min-width: 120px; text-align: center;">
+                    warm-100<br><small>#f9f1e8</small>
+                </div>
+                <div style="background: var(--warm-200); color: var(--warm-800); padding: 15px; border-radius: 8px; min-width: 120px; text-align: center;">
+                    warm-200<br><small>#f0e6d6</small>
+                </div>
+                <div style="background: var(--warm-400); color: var(--warm-800); padding: 15px; border-radius: 8px; min-width: 120px; text-align: center;">
+                    warm-400<br><small>#d4c2a8</small>
+                </div>
+                <div style="background: var(--warm-600); color: white; padding: 15px; border-radius: 8px; min-width: 120px; text-align: center;">
+                    warm-600<br><small>#9d8066</small>
+                </div>
+                <div style="background: var(--warm-800); color: white; padding: 15px; border-radius: 8px; min-width: 120px; text-align: center;">
+                    warm-800<br><small>#5d4a3a</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+        });
+    </script>
+</body>
+</html>

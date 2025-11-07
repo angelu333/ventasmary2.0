@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ventas Mary</title>
+    <title>Ventas Mary - Gestión de Belleza</title>
     <!-- Agregar Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -15,88 +15,303 @@
     <!-- Agregar Moment.js para manejo de fechas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/es.js"></script>
+    <!-- Iconos de Feather -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#d4a574">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Ventas Mary">
+    <meta name="msapplication-TileImage" content="icon-144.png">
+    <meta name="msapplication-TileColor" content="#d4a574">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icon-152.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Stickers decorativos -->
-    <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Pintauñas" class="sticker pintauñas">
-    <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Pintauñas" class="sticker pintauñas-derecha">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <!-- Header moderno -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-feather="sparkles"></i>
+                </div>
+                <h1 class="logo-text">Ventas Mary</h1>
+            </div>
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i data-feather="menu"></i>
+            </button>
+        </div>
+    </header>
+    <!-- Sidebar moderno -->
     <div class="sidebar" id="sidebar">
-        <h3>Menú de Ventas</h3>
-        <ul>
-            <li><button onclick="irAInicio()">Inicio</button></li>
-            <li><button onclick="mostrarResumen()">Ver Totales</button></li>
-            <li><button onclick="abrirModalEnviarWhatsApp()">Enviar totales por WhatsApp</button></li>
-            <li><button onclick="abrirModalEstadisticas()">Ganancia Semanal</button></li>
-            <li><button onclick="abrirModalBuscarClienta()">Buscar Clienta</button></li>
-            <li><button onclick="abrirModalGestionarClientas()">Gestionar Clientas</button></li>
-            <li><button onclick="verProductosYClientas()">Ver Productos y Clientas</button></li>
-            <li><button onclick="generarPDF()">Generar PDF de Pedidos</button></li>
-            <li><button onclick="confirmarReiniciarInventario()">Reiniciar Inventario</button></li>
-        </ul>
+        <div class="sidebar-header">
+            <h3>Menú Principal</h3>
+            <button class="sidebar-close" onclick="toggleSidebar()">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <h4 class="nav-section-title">Ventas</h4>
+                <ul class="nav-list">
+                    <li><button onclick="irAInicio()" class="nav-btn"><i data-feather="home"></i><span>Inicio</span></button></li>
+                    <li><button onclick="mostrarResumen()" class="nav-btn"><i data-feather="bar-chart-2"></i><span>Ver Totales</span></button></li>
+                    <li><button onclick="abrirModalEstadisticas()" class="nav-btn"><i data-feather="trending-up"></i><span>Estadísticas</span></button></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <h4 class="nav-section-title">Clientas</h4>
+                <ul class="nav-list">
+                    <li><button onclick="abrirModalBuscarClienta()" class="nav-btn"><i data-feather="search"></i><span>Buscar Clienta</span></button></li>
+                    <li><button onclick="abrirModalGestionarClientas()" class="nav-btn"><i data-feather="users"></i><span>Gestionar Clientas</span></button></li>
+                </ul>
+            </div>
+            <div class="nav-section">
+                <h4 class="nav-section-title">Herramientas</h4>
+                <ul class="nav-list">
+                    <li><button onclick="verProductosYClientas()" class="nav-btn"><i data-feather="package"></i><span>Ver Productos</span></button></li>
+                    <li><button onclick="abrirModalEnviarWhatsApp()" class="nav-btn"><i data-feather="message-circle"></i><span>Enviar WhatsApp</span></button></li>
+                    <li><button onclick="generarPDF()" class="nav-btn"><i data-feather="file-text"></i><span>Generar PDF</span></button></li>
+                    <li><button onclick="confirmarReiniciarInventario()" class="nav-btn danger"><i data-feather="refresh-cw"></i><span>Reiniciar</span></button></li>
+                </ul>
+            </div>
+        </nav>
     </div>
+    
+    
+    <!-- Overlay para cerrar sidebar en móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Indicador de estado offline -->
+    <div class="offline-indicator">
+        📴 Sin conexión - Trabajando en modo offline
+    </div>
+    <!-- Modal moderno -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="cerrarModal()">&times;</span>
-            <div id="modal-contenido"></div>
+            <div class="modal-header">
+                <h3 class="modal-title">Modal</h3>
+                <button class="modal-close" onclick="cerrarModal()">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-contenido"></div>
+            </div>
         </div>
     </div>
-    <div class="container">
-        <h2>Ventas Mary</h2>
-        <div id="producto-form">
-            <input type="text" id="nombreProducto" placeholder="Nombre del producto">
-            <input type="number" id="precioProducto" placeholder="Precio del producto">
-            <button onclick="agregarProducto()">Agregar Producto</button>
-        </div>
-        <div id="cliente-form" style="display:none;">
-            <div class="autocomplete-container">
-                <input type="text" id="nombreClienta" placeholder="Nombre de la clienta: " autocomplete="off">
-                <div class="suggestions-list" id="suggestionsList"></div>
-            </div>
-            <!-- Nuevos campos para color y cantidad -->
-            <div class="additional-fields">
-                <div class="field-label">Detalles adicionales (opcionales):</div>
-                <input type="text" id="colorProducto" placeholder="Color del producto (opcional)">
-                <input type="number" id="cantidadProducto" placeholder="Cantidad" min="1" value="1">
-            </div>
-            <button onclick="agregarCliente()">Agregar Clienta</button>
-            <button onclick="abrirModoMasivo()" style="background: #FF1493;">Modo Masivo</button>
-            <button onclick="finalizarProducto()">Finalizar Producto</button>
-        </div>
 
-        <!-- Nuevo modal para modo masivo -->
-        <div id="modal-masivo" class="modal" style="display:none;">
-            <div class="modal-content" style="max-width: 600px;">
-                <span class="close" onclick="cerrarModoMasivo()">&times;</span>
-                <h3>Registro Masivo - ${productoActual.nombre}</h3>
-                <div style="margin-bottom: 20px;">
-                    <input type="text" id="colorMasivo" placeholder="Color (opcional) - se aplicará a todas las clientas">
-                    <input type="number" id="cantidadMasivo" placeholder="Cantidad por defecto" min="1" value="1">
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <div class="autocomplete-container">
-                        <input type="text" id="nuevaClienteMasivo" placeholder="Buscar y agregar clienta..." autocomplete="off" onkeyup="mostrarSugerenciasMasivo(this.value)" onkeydown="manejarTecladoMasivo(event)">
-                        <div class="suggestions-list" id="suggestionsMasivo"></div>
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Dashboard de bienvenida -->
+            <div class="welcome-section" id="welcomeSection">
+                <div class="welcome-card">
+                    <div class="welcome-icon">
+                        <i data-feather="sparkles"></i>
                     </div>
-                    <div style="margin-top: 10px;">
-                        <button onclick="agregarClienteAModal()" style="background: #FF69B4; color: white; border: none; padding: 5px 15px; border-radius: 3px; cursor: pointer;">Agregar a Lista</button>
-                    </div>
-                    <div style="margin-top: 15px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Lista de clientas:</label>
-                        <div id="listaClientasAgregadas" style="min-height: 100px; max-height: 200px; overflow-y: auto; border: 1px solid #FFB6C1; border-radius: 5px; padding: 10px; background: #f9f9f9;">
-                            <p style="color: #666; font-style: italic;">Las clientas aparecerán aquí...</p>
+                    <h2 class="welcome-title">¡Bienvenida a Ventas Mary!</h2>
+                    <p class="welcome-subtitle">Gestiona tus ventas de belleza de manera profesional</p>
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="quickTotalVentas">0</div>
+                            <div class="stat-label">Ventas Hoy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="quickTotalClientas">0</div>
+                            <div class="stat-label">Clientas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="quickTotalProductos">0</div>
+                            <div class="stat-label">Productos</div>
                         </div>
                     </div>
                 </div>
-                <div style="text-align: center;">
-                    <button onclick="procesarRegistroMasivo()" style="background: #FF69B4; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Procesar Todas</button>
-                    <button onclick="cerrarModoMasivo()" style="background: #ccc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Cancelar</button>
+            </div>
+
+            <!-- Formulario de productos -->
+            <div id="producto-form" class="form-section">
+                <div class="form-card">
+                    <div class="form-header">
+                        <div class="form-icon">
+                            <i data-feather="plus-circle"></i>
+                        </div>
+                        <h3 class="form-title">Agregar Nuevo Producto</h3>
+                        <p class="form-subtitle">Ingresa los detalles del producto que deseas vender</p>
+                    </div>
+                    <div class="form-body">
+                        <div class="input-group">
+                            <label for="nombreProducto" class="input-label">
+                                <i data-feather="tag"></i>
+                                Nombre del Producto
+                            </label>
+                            <input type="text" id="nombreProducto" class="form-input" placeholder="Ej: Esmalte de uñas rojo">
+                        </div>
+                        <div class="input-group">
+                            <label for="precioProducto" class="input-label">
+                                <i data-feather="dollar-sign"></i>
+                                Precio del Producto
+                            </label>
+                            <input type="number" id="precioProducto" class="form-input" placeholder="0.00">
+                        </div>
+                        <button onclick="agregarProducto()" class="btn btn-primary btn-large">
+                            <i data-feather="arrow-right"></i>
+                            Continuar con Clientas
+                        </button>
+                    </div>
                 </div>
             </div>
+            <!-- Formulario de clientas -->
+            <div id="cliente-form" class="form-section" style="display:none;">
+                <div class="form-card">
+                    <div class="form-header">
+                        <div class="form-icon">
+                            <i data-feather="user-plus"></i>
+                        </div>
+                        <h3 class="form-title">Agregar Clientas</h3>
+                        <p class="form-subtitle">Registra las clientas que compraron este producto</p>
+                    </div>
+                    <div class="form-body">
+                        <div class="input-group">
+                            <label for="nombreClienta" class="input-label">
+                                <i data-feather="user"></i>
+                                Nombre de la Clienta
+                            </label>
+                            <div class="autocomplete-container">
+                                <input type="text" id="nombreClienta" class="form-input" placeholder="Buscar o escribir nombre..." autocomplete="off">
+                                <div class="suggestions-list" id="suggestionsList"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="colorProducto" class="input-label">
+                                    <i data-feather="palette"></i>
+                                    Color (Opcional)
+                                </label>
+                                <input type="text" id="colorProducto" class="form-input" placeholder="Ej: Rojo brillante">
+                            </div>
+                            <div class="input-group">
+                                <label for="cantidadProducto" class="input-label">
+                                    <i data-feather="hash"></i>
+                                    Cantidad
+                                </label>
+                                <input type="number" id="cantidadProducto" class="form-input" placeholder="1" min="1" value="1">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button onclick="agregarCliente()" class="btn btn-primary">
+                                <i data-feather="plus"></i>
+                                Agregar Clienta
+                            </button>
+                            <button onclick="abrirModoMasivo()" class="btn btn-secondary">
+                                <i data-feather="users"></i>
+                                Modo Masivo
+                            </button>
+                        </div>
+
+                        <div class="form-actions">
+                            <button onclick="finalizarProducto()" class="btn btn-outline">
+                                <i data-feather="check"></i>
+                                Finalizar Producto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para modo masivo -->
+            <div id="modal-masivo" class="modal" style="display:none;">
+                <div class="modal-content modal-large">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Registro Masivo</h3>
+                        <button class="modal-close" onclick="cerrarModoMasivo()">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="masivo-config">
+                            <h4>Configuración General</h4>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label class="input-label">Color (se aplicará a todas)</label>
+                                    <input type="text" id="colorMasivo" class="form-input" placeholder="Color opcional">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Cantidad por defecto</label>
+                                    <input type="number" id="cantidadMasivo" class="form-input" min="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="masivo-add">
+                            <h4>Agregar Clientas</h4>
+                            <div class="autocomplete-container">
+                                <input type="text" id="nuevaClienteMasivo" class="form-input" placeholder="Buscar y agregar clienta..." autocomplete="off" onkeyup="mostrarSugerenciasMasivo(this.value)" onkeydown="manejarTecladoMasivo(event)">
+                                <div class="suggestions-list" id="suggestionsMasivo"></div>
+                            </div>
+                            <button onclick="agregarClienteAModal()" class="btn btn-primary btn-small">
+                                <i data-feather="plus"></i>
+                                Agregar a Lista
+                            </button>
+                        </div>
+
+                        <div class="masivo-list">
+                            <h4>Lista de Clientas</h4>
+                            <div id="listaClientasAgregadas" class="clientas-list">
+                                <div class="empty-state">
+                                    <i data-feather="users"></i>
+                                    <p>Las clientas aparecerán aquí...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button onclick="procesarRegistroMasivo()" class="btn btn-primary">
+                                <i data-feather="check-circle"></i>
+                                Procesar Todas
+                            </button>
+                            <button onclick="cerrarModoMasivo()" class="btn btn-outline">
+                                <i data-feather="x"></i>
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de resumen -->
+            <div class="resumen-section">
+                <div id="resumen" class="resumen-content"></div>
+            </div>
         </div>
-        <div class="resumen" id="resumen"></div>
-    </div>
+    </main>
+
     <script src="app.js"></script>
+    <script>
+        // Inicializar iconos de Feather después de cargar todo
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+                console.log('Iconos inicializados');
+            }
+        });
+    </script>
 </body>
 </html>

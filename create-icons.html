@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generador de Iconos - Ventas Mary</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+        .icon-canvas { margin: 20px; border: 1px solid #ccc; }
+        .download-btn { 
+            background: #d4a574; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Generador de Iconos para Ventas Mary PWA</h1>
+    <p>Haz clic en "Generar Iconos" para crear todos los iconos necesarios</p>
+    
+    <button onclick="generarTodosLosIconos()" class="download-btn">
+        🚀 Generar Todos los Iconos
+    </button>
+    
+    <div id="iconos-container"></div>
+
+    <script>
+        function generarIcono(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo con gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#d4a574');
+            gradient.addColorStop(1, '#e8b4b8');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Agregar esquinas redondeadas
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.2);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // Agregar texto/símbolo
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('VM', size / 2, size / 2);
+            
+            // Agregar brillo
+            const shine = ctx.createLinearGradient(0, 0, size, size * 0.5);
+            shine.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            shine.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = shine;
+            ctx.fillRect(0, 0, size, size * 0.5);
+            
+            return canvas;
+        }
+        
+        function descargarIcono(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function generarTodosLosIconos() {
+            const sizes = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+            const container = document.getElementById('iconos-container');
+            container.innerHTML = '<h2>✨ Generando iconos...</h2>';
+            
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    const canvas = generarIcono(size);
+                    canvas.className = 'icon-canvas';
+                    
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <h3>Icono ${size}x${size}</h3>
+                        <button onclick="descargarIcono(this.nextElementSibling, 'icon-${size}.png')" class="download-btn">
+                            Descargar icon-${size}.png
+                        </button>
+                    `;
+                    div.appendChild(canvas);
+                    container.appendChild(div);
+                    
+                    // Auto-descargar
+                    descargarIcono(canvas, `icon-${size}.png`);
+                }, index * 200);
+            });
+            
+            setTimeout(() => {
+                container.innerHTML += '<h2>🎉 ¡Todos los iconos generados!</h2><p>Guarda todos los archivos en la carpeta de tu proyecto</p>';
+            }, sizes.length * 200 + 500);
+        }
+        
+        // Polyfill para roundRect si no está disponible
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>

@@ -20,6 +20,8 @@ let clientasRegistradas = {};
 let productoActual = {};
 let estadisticasSemanales = {};
 let graficosEstadisticas = {};
+let historialGanancias = {};
+let clientasMasivo = [];
 
 // Cargar datos iniciales
 function cargarDatos() {
@@ -44,6 +46,86 @@ function cargarDatos() {
 // Llamar a cargarDatos cuando se inicia la aplicación
 cargarDatos();
 
+// Función para actualizar estadísticas rápidas
+function actualizarEstadisticasRapidas() {
+    const totalVentas = calcularTotalVentas();
+    const totalClientas = Object.keys(pedidos).length;
+    const totalProductos = calcularTotalProductos();
+
+    document.getElementById('quickTotalVentas').textContent = totalVentas;
+    document.getElementById('quickTotalClientas').textContent = totalClientas;
+    document.getElementById('quickTotalProductos').textContent = totalProductos;
+}
+
+// Función para mostrar notificaciones
+function mostrarNotificacion(mensaje, tipo = 'info') {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion notificacion-${tipo}`;
+    notificacion.innerHTML = `
+        <div class="notificacion-content">
+            <i data-feather="${tipo === 'error' ? 'alert-circle' : tipo === 'success' ? 'check-circle' : 'info'}"></i>
+            <span>${mensaje}</span>
+        </div>
+    `;
+
+    // Agregar estilos si no existen
+    if (!document.querySelector('#notificacion-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'notificacion-styles';
+        styles.textContent = `
+            .notificacion {
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: white;
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                z-index: 1100;
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+                max-width: 350px;
+                border-left: 4px solid;
+            }
+            .notificacion-success { border-left-color: #4caf50; }
+            .notificacion-error { border-left-color: #f44336; }
+            .notificacion-info { border-left-color: #2196f3; }
+            .notificacion.show { transform: translateX(0); }
+            .notificacion-content {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 14px;
+                color: #333;
+            }
+            .notificacion-content svg {
+                width: 20px;
+                height: 20px;
+                flex-shrink: 0;
+            }
+            .notificacion-success svg { color: #4caf50; }
+            .notificacion-error svg { color: #f44336; }
+            .notificacion-info svg { color: #2196f3; }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    document.body.appendChild(notificacion);
+
+    // Inicializar iconos
+    feather.replace();
+
+    // Mostrar notificación
+    setTimeout(() => notificacion.classList.add('show'), 100);
+
+    // Ocultar después de 4 segundos
+    setTimeout(() => {
+        notificacion.classList.remove('show');
+        setTimeout(() => document.body.removeChild(notificacion), 300);
+    }, 4000);
+}
+
 // Variables para el autocompletado
 let selectedSuggestionIndex = -1;
 let suggestions = [];
@@ -57,14 +139,14 @@ function obtenerNombresClientas() {
 function mostrarSugerencias(input) {
     const suggestionsList = document.getElementById('suggestionsList');
     suggestionsList.innerHTML = '';
-    
+
     if (!input || input.length < 1) {
         suggestionsList.style.display = 'none';
         return;
     }
 
     const nombresClientas = obtenerNombresClientas();
-    suggestions = nombresClientas.filter(nombre => 
+    suggestions = nombresClientas.filter(nombre =>
         nombre.toLowerCase().includes(input.toLowerCase())
     );
 
@@ -76,11 +158,11 @@ function mostrarSugerencias(input) {
     suggestions.forEach((suggestion, index) => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
-        
+
         // Resaltar la parte que coincide
         const regex = new RegExp(`(${input})`, 'gi');
         const highlightedText = suggestion.replace(regex, '<span class="suggestion-highlight">$1</span>');
-        
+
         item.innerHTML = highlightedText;
         item.onclick = () => seleccionarSugerencia(suggestion);
         suggestionsList.appendChild(item);
@@ -126,7 +208,7 @@ function navegarSugerencias(direction) {
 // Configurar eventos del input de nombre de clienta
 function configurarAutocompletado() {
     const input = document.getElementById('nombreClienta');
-    
+
     input.addEventListener('input', (e) => {
         mostrarSugerencias(e.target.value);
     });
@@ -164,7 +246,36 @@ function configurarAutocompletado() {
 document.addEventListener('DOMContentLoaded', configurarAutocompletado);
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    if (!sidebar) {
+        console.error('Sidebar element not found');
+        return;
+    }
+    
+    sidebar.classList.toggle('open');
+    
+    if (sidebar.classList.contains('open')) {
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+        document.body.style.overflow = 'hidden';
+    } else {
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        document.body.style.overflow = '';
+    }
+}
+
+// Función auxiliar para cerrar el sidebar
+function cerrarSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
 }
 function abrirModal(contenido) {
     document.getElementById('modal-contenido').innerHTML = contenido;
@@ -175,18 +286,32 @@ function cerrarModal() {
 }
 function irAInicio() {
     document.getElementById('resumen').innerHTML = '';
+    document.getElementById('welcomeSection').style.display = 'block';
     document.getElementById('producto-form').style.display = 'block';
     document.getElementById('cliente-form').style.display = 'none';
+
+    // Cerrar sidebar en móvil
+    cerrarSidebar();
+
+    // Actualizar estadísticas rápidas
+    actualizarEstadisticasRapidas();
 }
 function agregarProducto() {
     const nombre = document.getElementById('nombreProducto').value.trim();
     const precio = parseInt(document.getElementById('precioProducto').value);
     if (nombre && precio > 0) {
         productoActual = { nombre: nombre, precio: precio };
+        document.getElementById('welcomeSection').style.display = 'none';
         document.getElementById('producto-form').style.display = 'none';
         document.getElementById('cliente-form').style.display = 'block';
+
+        // Actualizar el título del modal masivo si existe
+        const modalMasivo = document.querySelector('#modal-masivo .modal-title');
+        if (modalMasivo) {
+            modalMasivo.textContent = `Registro Masivo - ${nombre}`;
+        }
     } else {
-        alert('Por favor, ingrese un nombre y precio válido para el producto.');
+        mostrarNotificacion('Por favor, ingrese un nombre y precio válido para el producto.', 'error');
     }
 }
 function agregarCliente() {
@@ -229,47 +354,32 @@ function agregarCliente() {
         document.getElementById('cantidadProducto').value = '1';
         // Guardar en Firebase
         database.ref('pedidos').set(pedidos);
-        
-        // Mostrar mensaje de confirmación en lugar del resumen automático
-        const resumenDiv = document.getElementById('resumen');
-        resumenDiv.innerHTML = `
-            <div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; text-align: center;">
-                ✅ ${nombreClienta} agregada exitosamente
-            </div>
-        `;
-        
-        // Limpiar el mensaje después de 3 segundos
-        setTimeout(() => {
-            if (resumenDiv.innerHTML.includes('agregada exitosamente')) {
-                resumenDiv.innerHTML = '';
-            }
-        }, 3000);
+
+        // Mostrar notificación de éxito
+        mostrarNotificacion(`${nombreClienta} agregada exitosamente`, 'success');
+
+        // Actualizar estadísticas rápidas
+        actualizarEstadisticasRapidas();
     } else {
-        alert('Ingrese el nombre completo de la clienta.');
+        mostrarNotificacion('Ingrese el nombre completo de la clienta.', 'error');
     }
 }
 function finalizarProducto() {
     document.getElementById('nombreProducto').value = '';
     document.getElementById('precioProducto').value = '';
+    document.getElementById('welcomeSection').style.display = 'block';
     document.getElementById('producto-form').style.display = 'block';
     document.getElementById('cliente-form').style.display = 'none';
+
+    // Limpiar campos del formulario de cliente
+    document.getElementById('nombreClienta').value = '';
+    document.getElementById('colorProducto').value = '';
+    document.getElementById('cantidadProducto').value = '1';
+
+    // Actualizar estadísticas
+    actualizarEstadisticasRapidas();
 }
-function mostrarResumen() {
-    let resumen = '<h3>Resumen de Pedidos:</h3>';
-    for (let clienta in pedidos) {
-        let total = 0;
-        resumen += `<div class="clienta-pedido"><strong>${clienta}</strong><ul>`;
-        pedidos[clienta].forEach((pedido) => {
-            let subtotal = pedido.precio * pedido.cantidad;
-            total += subtotal;
-            // Mostrar el color si existe
-            const colorInfo = pedido.color ? ` (${pedido.color})` : '';
-            resumen += `<li>${pedido.producto}${colorInfo}: ${pedido.cantidad} x $${pedido.precio} = $${subtotal}</li>`;
-        });
-        resumen += `</ul><strong>Total: $${total}</strong></div>`;
-    }
-    document.getElementById('resumen').innerHTML = resumen;
-}
+// Función mostrarResumen antigua eliminada - usar la nueva versión más abajo
 function abrirModalRegistrarClienta() {
     const contenido = `
         <h3>Registrar Clienta</h3>
@@ -286,11 +396,11 @@ function registrarClienta() {
         telefono = telefono.replace(/\D/g, '');
         clientasRegistradas[nombre] = telefono;
         database.ref('clientasRegistradas').set(clientasRegistradas);
-        
+
         // Limpiar campos
         document.getElementById('nombreClientaRegistro').value = '';
         document.getElementById('telefonoClientaRegistro').value = '';
-        
+
         // Mostrar mensaje de éxito
         const contenidoDiv = document.getElementById('contenidoClientas');
         contenidoDiv.innerHTML = `
@@ -354,18 +464,18 @@ function abrirModalEstadisticas() {
 // Función para obtener la clienta que más compró
 function obtenerClientaTop() {
     let clientaTop = { nombre: null, total: 0 };
-    
+
     for (let clienta in pedidos) {
         let total = 0;
         pedidos[clienta].forEach(pedido => {
             total += pedido.precio * pedido.cantidad;
         });
-        
+
         if (total > clientaTop.total) {
             clientaTop = { nombre: clienta, total: total };
         }
     }
-    
+
     return clientaTop;
 }
 
@@ -399,9 +509,9 @@ function obtenerSemanaActual() {
 function guardarGananciaSemanal() {
     const semanaActual = obtenerSemanaActual();
     const gananciaActual = calcularTotalVentas();
-    
+
     historialGanancias[semanaActual] = gananciaActual;
-    
+
     // Mantener solo las últimas 6 semanas
     const semanas = Object.keys(historialGanancias).sort();
     if (semanas.length > 6) {
@@ -410,7 +520,7 @@ function guardarGananciaSemanal() {
             delete historialGanancias[semana];
         });
     }
-    
+
     database.ref('historialGanancias').set(historialGanancias);
 }
 
@@ -421,7 +531,7 @@ function crearGraficoGanancias() {
 
     const semanas = Object.keys(historialGanancias).sort();
     const ganancias = semanas.map(semana => historialGanancias[semana]);
-    
+
     // Formatear fechas para mostrar
     const fechasFormateadas = semanas.map(semana => {
         const fecha = new Date(semana);
@@ -454,7 +564,7 @@ function crearGraficoGanancias() {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                             return '$' + value;
                         }
                     }
@@ -493,7 +603,7 @@ function mostrarFormularioRegistro() {
 function mostrarListaClientas() {
     const contenidoDiv = document.getElementById('contenidoClientas');
     const clientas = Object.keys(clientasRegistradas);
-    
+
     if (clientas.length === 0) {
         contenidoDiv.innerHTML = '<h4>Lista de Clientas</h4><p>No hay clientas registradas.</p>';
     } else {
@@ -510,12 +620,12 @@ function mostrarListaClientas() {
 function mostrarEditarClientas() {
     const contenidoDiv = document.getElementById('contenidoClientas');
     const clientas = Object.keys(clientasRegistradas);
-    
+
     if (clientas.length === 0) {
         contenidoDiv.innerHTML = '<h4>Editar Clientas</h4><p>No hay clientas registradas para editar.</p>';
         return;
     }
-    
+
     let html = '<h4>Selecciona una clienta para editar:</h4><div style="max-height: 300px; overflow-y: auto;">';
     clientas.forEach(clienta => {
         html += `
@@ -533,7 +643,7 @@ function mostrarEditarClientas() {
 function editarClienta(nombreOriginal) {
     const contenidoDiv = document.getElementById('contenidoClientas');
     const telefono = clientasRegistradas[nombreOriginal];
-    
+
     contenidoDiv.innerHTML = `
         <h4>Editar Clienta</h4>
         <p><strong>Clienta actual:</strong> ${nombreOriginal}</p>
@@ -550,23 +660,23 @@ function editarClienta(nombreOriginal) {
 function guardarCambiosClienta(nombreOriginal) {
     const nuevoNombre = document.getElementById('nuevoNombreClienta').value.trim();
     let nuevoTelefono = document.getElementById('nuevoTelefonoClienta').value.trim();
-    
+
     if (!nuevoNombre || !nuevoTelefono) {
         alert('Por favor, complete todos los campos.');
         return;
     }
-    
+
     nuevoTelefono = nuevoTelefono.replace(/\D/g, '');
-    
+
     // Eliminar la clienta original
     delete clientasRegistradas[nombreOriginal];
-    
+
     // Agregar con el nuevo nombre
     clientasRegistradas[nuevoNombre] = nuevoTelefono;
-    
+
     // Guardar en Firebase
     database.ref('clientasRegistradas').set(clientasRegistradas);
-    
+
     // Mostrar confirmación
     const contenidoDiv = document.getElementById('contenidoClientas');
     contenidoDiv.innerHTML = `
@@ -655,14 +765,14 @@ function abrirModalBuscarClienta() {
 function mostrarSugerenciasBusqueda(input) {
     const suggestionsList = document.getElementById('suggestionsBusqueda');
     suggestionsList.innerHTML = '';
-    
+
     if (!input || input.length < 1) {
         suggestionsList.style.display = 'none';
         return;
     }
 
     const clientas = Object.keys(pedidos);
-    const sugerencias = clientas.filter(clienta => 
+    const sugerencias = clientas.filter(clienta =>
         clienta.toLowerCase().includes(input.toLowerCase())
     );
 
@@ -674,11 +784,11 @@ function mostrarSugerenciasBusqueda(input) {
     sugerencias.forEach((sugerencia) => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
-        
+
         // Resaltar la parte que coincide
         const regex = new RegExp(`(${input})`, 'gi');
         const highlightedText = sugerencia.replace(regex, '<span class="suggestion-highlight">$1</span>');
-        
+
         item.innerHTML = highlightedText;
         item.onclick = () => seleccionarClientaBusqueda(sugerencia);
         suggestionsList.appendChild(item);
@@ -698,13 +808,13 @@ function seleccionarClientaBusqueda(nombre) {
 function buscarClienta() {
     const nombre = document.getElementById('buscarClientaInput').value.trim();
     const resultadoDiv = document.getElementById('resultadoBusqueda');
-    
+
     if (!nombre) {
         resultadoDiv.innerHTML = '<p>Ingrese un nombre para buscar.</p>';
         return;
     }
 
-    const clientasEncontradas = Object.keys(pedidos).filter(clienta => 
+    const clientasEncontradas = Object.keys(pedidos).filter(clienta =>
         clienta.toLowerCase().includes(nombre.toLowerCase())
     );
 
@@ -739,7 +849,7 @@ function buscarClienta() {
 function mostrarDetallesClienta(nombreClienta) {
     const resultadoDiv = document.getElementById('resultadoBusqueda');
     const pedidosClienta = pedidos[nombreClienta] || [];
-    
+
     let total = 0;
     let html = `
         <h4>Detalles de ${nombreClienta}</h4>
@@ -750,7 +860,7 @@ function mostrarDetallesClienta(nombreClienta) {
         </div>
         <div id="productos-${nombreClienta.replace(/\s+/g, '-')}">
     `;
-    
+
     if (pedidosClienta.length === 0) {
         html += '<p>Esta clienta no tiene productos registrados.</p>';
     } else {
@@ -759,7 +869,7 @@ function mostrarDetallesClienta(nombreClienta) {
             const subtotal = pedido.precio * pedido.cantidad;
             total += subtotal;
             const colorInfo = pedido.color ? ` (${pedido.color})` : '';
-            
+
             html += `
                 <div class="clienta-pedido" style="margin: 10px 0; padding: 10px; border: 1px solid #FFB6C1; border-radius: 5px;">
                     <strong>${pedido.producto}${colorInfo}</strong><br>
@@ -769,21 +879,21 @@ function mostrarDetallesClienta(nombreClienta) {
             `;
         });
     }
-    
+
     html += `
         </div>
         <div style="margin-top: 20px; padding: 15px; background: #FFE4E1; border-radius: 5px;">
             <strong>Total de ${nombreClienta}: $${total}</strong>
         </div>
     `;
-    
+
     resultadoDiv.innerHTML = html;
 }
 
 // Función para agregar producto a una clienta
 function agregarProductoAClienta(nombreClienta) {
     const resultadoDiv = document.getElementById('resultadoBusqueda');
-    
+
     // Obtener lista de productos disponibles
     const productosDisponibles = new Set();
     for (let clienta in pedidos) {
@@ -791,9 +901,9 @@ function agregarProductoAClienta(nombreClienta) {
             productosDisponibles.add(pedido.producto);
         });
     }
-    
+
     const productosArray = Array.from(productosDisponibles);
-    
+
     let html = `
         <h4>Agregar Producto a ${nombreClienta}</h4>
         <div style="margin-bottom: 15px;">
@@ -809,7 +919,7 @@ function agregarProductoAClienta(nombreClienta) {
             </div>
         </div>
     `;
-    
+
     resultadoDiv.innerHTML = html;
 }
 
@@ -818,12 +928,12 @@ function confirmarAgregarProducto(nombreClienta) {
     const producto = document.getElementById('productoSeleccionado').value;
     const cantidad = parseInt(document.getElementById('cantidadProducto').value) || 1;
     const color = document.getElementById('colorProducto').value.trim();
-    
+
     if (!producto) {
         alert('Por favor, selecciona un producto.');
         return;
     }
-    
+
     // Buscar el precio del producto
     let precioProducto = 0;
     for (let clienta in pedidos) {
@@ -835,27 +945,27 @@ function confirmarAgregarProducto(nombreClienta) {
         });
         if (precioProducto > 0) break;
     }
-    
+
     // Crear el nuevo pedido
     const nuevoPedido = {
         producto: producto,
         precio: precioProducto,
         cantidad: cantidad
     };
-    
+
     if (color) {
         nuevoPedido.color = color;
     }
-    
+
     // Agregar a la clienta
     if (!pedidos[nombreClienta]) {
         pedidos[nombreClienta] = [];
     }
     pedidos[nombreClienta].push(nuevoPedido);
-    
+
     // Guardar en Firebase
     database.ref('pedidos').set(pedidos);
-    
+
     // Volver a mostrar detalles
     mostrarDetallesClienta(nombreClienta);
 }
@@ -864,15 +974,15 @@ function confirmarAgregarProducto(nombreClienta) {
 function eliminarProductoDeClienta(nombreClienta, index) {
     if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
         pedidos[nombreClienta].splice(index, 1);
-        
+
         // Si la clienta no tiene más productos, eliminarla
         if (pedidos[nombreClienta].length === 0) {
             delete pedidos[nombreClienta];
         }
-        
+
         // Guardar en Firebase
         database.ref('pedidos').set(pedidos);
-        
+
         // Volver a mostrar detalles
         mostrarDetallesClienta(nombreClienta);
     }
@@ -882,7 +992,7 @@ function eliminarProductoDeClienta(nombreClienta, index) {
 function abrirModalVerClientas() {
     const clientas = Object.keys(clientasRegistradas);
     let contenido = '<h3>Clientas Registradas</h3>';
-    
+
     if (clientas.length === 0) {
         contenido += '<p>No hay clientas registradas.</p>';
     } else {
@@ -892,7 +1002,7 @@ function abrirModalVerClientas() {
         });
         contenido += '</ul>';
     }
-    
+
     abrirModal(contenido);
 }
 
@@ -908,9 +1018,9 @@ function verProductosYClientas() {
         </div>
         <div id="listaProductos">
     `;
-    
+
     const productos = {};
-    
+
     // Agrupar productos por nombre
     for (let clienta in pedidos) {
         pedidos[clienta].forEach(pedido => {
@@ -929,7 +1039,7 @@ function verProductosYClientas() {
             }
         });
     }
-    
+
     for (let producto in productos) {
         contenido += `
             <div class="clienta-pedido producto-item" data-producto="${producto.toLowerCase()}">
@@ -939,12 +1049,12 @@ function verProductosYClientas() {
                 <div style="margin: 10px 0;">
                     <strong>Clientes:</strong>
                     <div id="clientas-${producto.replace(/\s+/g, '-')}" style="margin: 5px 0;">
-                        ${productos[producto].clientas.map(clienta => 
-                            `<span style="display: inline-block; background: #FFE4E1; padding: 3px 8px; margin: 2px; border-radius: 3px;">
+                        ${productos[producto].clientas.map(clienta =>
+            `<span style="display: inline-block; background: #FFE4E1; padding: 3px 8px; margin: 2px; border-radius: 3px;">
                                 ${clienta}
                                 <button onclick="borrarClienteDeProducto('${producto}', '${clienta}')" style="background: #FF1493; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; margin-left: 5px; cursor: pointer; font-size: 12px;">×</button>
                             </span>`
-                        ).join('')}
+        ).join('')}
                     </div>
                     <div style="margin-top: 10px;">
                         <input type="text" id="nuevaCliente-${producto.replace(/\s+/g, '-')}" placeholder="Nombre de la nueva clienta" style="width: 60%; margin-right: 5px;">
@@ -954,10 +1064,10 @@ function verProductosYClientas() {
             </div>
         `;
     }
-    
+
     contenido += '</div>';
     abrirModal(contenido);
-    
+
     // Actualizar contador inicial
     setTimeout(() => {
         actualizarContadorProductos();
@@ -969,7 +1079,7 @@ function filtrarProductos() {
     const busqueda = document.getElementById('buscarProducto').value.toLowerCase();
     const productos = document.querySelectorAll('.producto-item');
     let contador = 0;
-    
+
     productos.forEach(producto => {
         const nombreProducto = producto.getAttribute('data-producto');
         if (nombreProducto.includes(busqueda)) {
@@ -979,7 +1089,7 @@ function filtrarProductos() {
             producto.style.display = 'none';
         }
     });
-    
+
     actualizarContadorProductos();
 }
 
@@ -996,15 +1106,15 @@ function actualizarContadorProductos() {
 function agregarClienteAProducto(producto) {
     const inputId = `nuevaCliente-${producto.replace(/\s+/g, '-')}`;
     const nuevaCliente = document.getElementById(inputId).value.trim();
-    
+
     if (!nuevaCliente) {
         alert('Por favor, ingrese el nombre de la clienta.');
         return;
     }
-    
+
     // Capitalizar el nombre
     const nombreCliente = nuevaCliente.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    
+
     // Verificar si la clienta ya existe en el producto
     const clientasActuales = [];
     for (let clienta in pedidos) {
@@ -1014,17 +1124,17 @@ function agregarClienteAProducto(producto) {
             }
         });
     }
-    
+
     if (clientasActuales.includes(nombreCliente)) {
         alert('Esta clienta ya está registrada para este producto.');
         return;
     }
-    
+
     // Agregar la nueva clienta al producto
     if (!pedidos[nombreCliente]) {
         pedidos[nombreCliente] = [];
     }
-    
+
     // Buscar el precio del producto
     let precioProducto = 0;
     for (let clienta in pedidos) {
@@ -1036,20 +1146,20 @@ function agregarClienteAProducto(producto) {
         });
         if (precioProducto > 0) break;
     }
-    
+
     // Agregar el pedido
     pedidos[nombreCliente].push({
         producto: producto,
         precio: precioProducto,
         cantidad: 1
     });
-    
+
     // Guardar en Firebase
     database.ref('pedidos').set(pedidos);
-    
+
     // Limpiar el input
     document.getElementById(inputId).value = '';
-    
+
     // Actualizar la vista
     verProductosYClientas();
 }
@@ -1060,16 +1170,16 @@ function borrarClienteDeProducto(producto, nombreCliente) {
         // Encontrar y eliminar todos los pedidos de este producto para esta clienta
         if (pedidos[nombreCliente]) {
             pedidos[nombreCliente] = pedidos[nombreCliente].filter(pedido => pedido.producto !== producto);
-            
+
             // Si la clienta no tiene más pedidos, eliminarla completamente
             if (pedidos[nombreCliente].length === 0) {
                 delete pedidos[nombreCliente];
             }
         }
-        
+
         // Guardar en Firebase
         database.ref('pedidos').set(pedidos);
-        
+
         // Actualizar la vista
         verProductosYClientas();
     }
@@ -1142,7 +1252,7 @@ function confirmarReiniciarInventario() {
     if (confirm('¿Estás seguro de que quieres reiniciar el inventario? Esto borrará todos los pedidos actuales.')) {
         // Guardar la ganancia de la semana actual antes de reiniciar
         guardarGananciaSemanal();
-        
+
         pedidos = {};
         database.ref('pedidos').set(pedidos);
         mostrarResumen();
@@ -1164,7 +1274,7 @@ function cerrarModoMasivo() {
     document.getElementById('cantidadMasivo').value = '1';
     document.getElementById('nuevaClienteMasivo').value = '';
     document.getElementById('suggestionsMasivo').style.display = 'none';
-    
+
     // Limpiar variables
     clientasMasivo = [];
     selectedSuggestionIndexMasivo = -1;
@@ -1172,8 +1282,8 @@ function cerrarModoMasivo() {
     actualizarListaClientasMasivo();
 }
 
-// Variables para el autocompletado masivo
-let clientasMasivo = [];
+// Variables para el autocompletado masivo (ya declaradas arriba)
+// let clientasMasivo = []; - ya declarada en variables globales
 let selectedSuggestionIndexMasivo = -1;
 let suggestionsMasivo = [];
 
@@ -1181,14 +1291,14 @@ let suggestionsMasivo = [];
 function mostrarSugerenciasMasivo(input) {
     const suggestionsList = document.getElementById('suggestionsMasivo');
     suggestionsList.innerHTML = '';
-    
+
     if (!input || input.length < 1) {
         suggestionsList.style.display = 'none';
         return;
     }
 
     const clientas = Object.keys(pedidos);
-    suggestionsMasivo = clientas.filter(clienta => 
+    suggestionsMasivo = clientas.filter(clienta =>
         clienta.toLowerCase().includes(input.toLowerCase())
     );
 
@@ -1200,11 +1310,11 @@ function mostrarSugerenciasMasivo(input) {
     suggestionsMasivo.forEach((sugerencia) => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
-        
+
         // Resaltar la parte que coincide
         const regex = new RegExp(`(${input})`, 'gi');
         const highlightedText = sugerencia.replace(regex, '<span class="suggestion-highlight">$1</span>');
-        
+
         item.innerHTML = highlightedText;
         item.onclick = () => seleccionarClienteMasivo(sugerencia);
         suggestionsList.appendChild(item);
@@ -1263,27 +1373,27 @@ function actualizarSeleccionMasivo() {
 // Función para agregar clienta al modal
 function agregarClienteAModal() {
     const nombre = document.getElementById('nuevaClienteMasivo').value.trim();
-    
+
     if (!nombre) {
         alert('Por favor, ingresa un nombre de clienta.');
         return;
     }
-    
+
     // Capitalizar el nombre
-    const nombreFormateado = nombre.split(' ').map(word => 
+    const nombreFormateado = nombre.split(' ').map(word =>
         word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
-    
+
     // Verificar si ya está en la lista
     if (clientasMasivo.includes(nombreFormateado)) {
         alert('Esta clienta ya está en la lista.');
         return;
     }
-    
+
     // Agregar a la lista
     clientasMasivo.push(nombreFormateado);
     actualizarListaClientasMasivo();
-    
+
     // Limpiar input
     document.getElementById('nuevaClienteMasivo').value = '';
     document.getElementById('suggestionsMasivo').style.display = 'none';
@@ -1292,12 +1402,12 @@ function agregarClienteAModal() {
 // Función para actualizar la lista visual de clientas
 function actualizarListaClientasMasivo() {
     const listaDiv = document.getElementById('listaClientasAgregadas');
-    
+
     if (clientasMasivo.length === 0) {
         listaDiv.innerHTML = '<p style="color: #666; font-style: italic;">Las clientas aparecerán aquí...</p>';
         return;
     }
-    
+
     let html = '';
     clientasMasivo.forEach((clienta, index) => {
         html += `
@@ -1307,7 +1417,7 @@ function actualizarListaClientasMasivo() {
             </div>
         `;
     });
-    
+
     listaDiv.innerHTML = html;
 }
 
@@ -1320,62 +1430,62 @@ function removerClienteMasivo(index) {
 function procesarRegistroMasivo() {
     const color = document.getElementById('colorMasivo').value.trim();
     const cantidad = parseInt(document.getElementById('cantidadMasivo').value) || 1;
-    
+
     if (clientasMasivo.length === 0) {
         alert('Por favor, agrega al menos una clienta a la lista.');
         return;
     }
-    
+
     let agregadas = 0;
     let duplicadas = 0;
-    
+
     clientasMasivo.forEach(nombreCliente => {
         // Verificar si ya existe este producto para esta clienta
-        const yaExiste = pedidos[nombreCliente] && 
-            pedidos[nombreCliente].some(pedido => 
-                pedido.producto === productoActual.nombre && 
+        const yaExiste = pedidos[nombreCliente] &&
+            pedidos[nombreCliente].some(pedido =>
+                pedido.producto === productoActual.nombre &&
                 pedido.color === color
             );
-        
+
         if (yaExiste) {
             duplicadas++;
             return;
         }
-        
+
         // Agregar la clienta si no existe
         if (!pedidos[nombreCliente]) {
             pedidos[nombreCliente] = [];
         }
-        
+
         // Crear el pedido
         const nuevoPedido = {
             producto: productoActual.nombre,
             precio: productoActual.precio,
             cantidad: cantidad
         };
-        
+
         if (color) {
             nuevoPedido.color = color;
         }
-        
+
         pedidos[nombreCliente].push(nuevoPedido);
         agregadas++;
     });
-    
+
     // Guardar en Firebase
     database.ref('pedidos').set(pedidos);
-    
+
     // Mostrar resultado
     let mensaje = `Se agregaron ${agregadas} clientas exitosamente.`;
     if (duplicadas > 0) {
         mensaje += `\n${duplicadas} clientas ya tenían este producto y fueron omitidas.`;
     }
-    
+
     alert(mensaje);
-    
+
     // Cerrar modal y limpiar
     cerrarModoMasivo();
-    
+
     // Mostrar mensaje de confirmación
     const resumenDiv = document.getElementById('resumen');
     resumenDiv.innerHTML = `
@@ -1383,14 +1493,14 @@ function procesarRegistroMasivo() {
             ✅ ${agregadas} clientas agregadas exitosamente
         </div>
     `;
-    
+
     // Limpiar el mensaje después de 3 segundos
     setTimeout(() => {
         if (resumenDiv.innerHTML.includes('agregadas exitosamente')) {
             resumenDiv.innerHTML = '';
         }
     }, 3000);
-} 
+}
 
 function abrirModalEnviarWhatsApp() {
     let html = `<h3>Enviar Totales por WhatsApp</h3>`;
@@ -1430,4 +1540,270 @@ function abrirModalEnviarWhatsApp() {
         html += '<p>No hay clientas con pedidos y número registrados.</p>';
     }
     abrirModal(html);
-} 
+}
+
+// Función para mostrar resumen con nuevo diseño
+function mostrarResumen() {
+    const resumenDiv = document.getElementById('resumen');
+
+    if (Object.keys(pedidos).length === 0) {
+        resumenDiv.innerHTML = `
+            <div class="empty-state">
+                <i data-feather="shopping-bag"></i>
+                <h3>No hay pedidos registrados</h3>
+                <p>Comienza agregando productos y clientas</p>
+            </div>
+        `;
+        feather.replace();
+        return;
+    }
+
+    let totalGeneral = 0;
+    let resumen = `
+        <div class="resumen-header">
+            <h3><i data-feather="bar-chart-2"></i> Resumen de Pedidos</h3>
+        </div>
+        <div class="resumen-body">
+    `;
+
+    for (let clienta in pedidos) {
+        let total = 0;
+        resumen += `
+            <div class="clienta-pedido">
+                <div class="clienta-header">
+                    <strong><i data-feather="user"></i> ${clienta}</strong>
+                </div>
+                <ul class="pedidos-list">
+        `;
+
+        pedidos[clienta].forEach((pedido) => {
+            let subtotal = pedido.precio * pedido.cantidad;
+            total += subtotal;
+            const colorInfo = pedido.color ? ` <span class="color-tag">${pedido.color}</span>` : '';
+            resumen += `
+                <li class="pedido-item">
+                    <span class="producto-info">
+                        <i data-feather="package"></i>
+                        ${pedido.producto}${colorInfo}
+                    </span>
+                    <span class="cantidad-info">${pedido.cantidad} x $${pedido.precio}</span>
+                    <span class="subtotal-info">$${subtotal}</span>
+                </li>
+            `;
+        });
+
+        totalGeneral += total;
+        resumen += `
+                </ul>
+                <div class="clienta-total">
+                    <strong>Total: $${total}</strong>
+                </div>
+            </div>
+        `;
+    }
+
+    resumen += `
+        </div>
+        <div class="resumen-footer">
+            <div class="total-general">
+                <strong><i data-feather="dollar-sign"></i> Total General: $${totalGeneral}</strong>
+            </div>
+        </div>
+    `;
+
+    resumenDiv.innerHTML = resumen;
+
+    // Ocultar sección de bienvenida y formularios
+    document.getElementById('welcomeSection').style.display = 'none';
+    document.getElementById('producto-form').style.display = 'none';
+    document.getElementById('cliente-form').style.display = 'none';
+
+    // Cerrar sidebar en móvil
+    cerrarSidebar();
+
+    // Inicializar iconos
+    feather.replace();
+}
+
+// Función para calcular total de ventas
+function calcularTotalVentas() {
+    let total = 0;
+    for (let clienta in pedidos) {
+        pedidos[clienta].forEach(pedido => {
+            total += pedido.precio * pedido.cantidad;
+        });
+    }
+    return total;
+}
+
+// Función para calcular total de productos
+function calcularTotalProductos() {
+    let total = 0;
+    for (let clienta in pedidos) {
+        pedidos[clienta].forEach(pedido => {
+            total += pedido.cantidad;
+        });
+    }
+    return total;
+}
+
+// Funciones para modo masivo
+function abrirModoMasivo() {
+    document.getElementById('modal-masivo').style.display = 'block';
+    document.getElementById('colorMasivo').value = document.getElementById('colorProducto').value;
+    document.getElementById('cantidadMasivo').value = document.getElementById('cantidadProducto').value;
+    clientasMasivo = [];
+    actualizarListaClientasMasivo();
+}
+
+function cerrarModoMasivo() {
+    document.getElementById('modal-masivo').style.display = 'none';
+    clientasMasivo = [];
+}
+
+function mostrarSugerenciasMasivo(input) {
+    const suggestionsList = document.getElementById('suggestionsMasivo');
+    suggestionsList.innerHTML = '';
+
+    if (!input || input.length < 1) {
+        suggestionsList.style.display = 'none';
+        return;
+    }
+
+    const nombresClientas = obtenerNombresClientas();
+    const sugerencias = nombresClientas.filter(nombre =>
+        nombre.toLowerCase().includes(input.toLowerCase())
+    );
+
+    if (sugerencias.length === 0) {
+        suggestionsList.style.display = 'none';
+        return;
+    }
+
+    sugerencias.forEach((sugerencia) => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+
+        const regex = new RegExp(`(${input})`, 'gi');
+        const highlightedText = sugerencia.replace(regex, '<span class="suggestion-highlight">$1</span>');
+
+        item.innerHTML = highlightedText;
+        item.onclick = () => {
+            document.getElementById('nuevaClienteMasivo').value = sugerencia;
+            suggestionsList.style.display = 'none';
+        };
+        suggestionsList.appendChild(item);
+    });
+
+    suggestionsList.style.display = 'block';
+}
+
+function manejarTecladoMasivo(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        agregarClienteAModal();
+    }
+}
+
+function agregarClienteAModal() {
+    const nombre = document.getElementById('nuevaClienteMasivo').value.trim();
+    if (nombre && !clientasMasivo.includes(nombre)) {
+        clientasMasivo.push(nombre);
+        actualizarListaClientasMasivo();
+        document.getElementById('nuevaClienteMasivo').value = '';
+        document.getElementById('suggestionsMasivo').style.display = 'none';
+    }
+}
+
+function actualizarListaClientasMasivo() {
+    const listaDiv = document.getElementById('listaClientasAgregadas');
+
+    if (clientasMasivo.length === 0) {
+        listaDiv.innerHTML = `
+            <div class="empty-state">
+                <i data-feather="users"></i>
+                <p>Las clientas aparecerán aquí...</p>
+            </div>
+        `;
+        feather.replace();
+        return;
+    }
+
+    let html = '';
+    clientasMasivo.forEach((clienta, index) => {
+        html += `
+            <div class="clienta-masivo-item">
+                <span>${clienta}</span>
+                <button onclick="removerClienteMasivo(${index})" class="btn-remove">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+        `;
+    });
+
+    listaDiv.innerHTML = html;
+    feather.replace();
+}
+
+function removerClienteMasivo(index) {
+    clientasMasivo.splice(index, 1);
+    actualizarListaClientasMasivo();
+}
+
+function procesarRegistroMasivo() {
+    const color = document.getElementById('colorMasivo').value.trim();
+    const cantidad = parseInt(document.getElementById('cantidadMasivo').value) || 1;
+
+    if (clientasMasivo.length === 0) {
+        mostrarNotificacion('Agrega al menos una clienta', 'error');
+        return;
+    }
+
+    clientasMasivo.forEach(nombreClienta => {
+        if (!pedidos[nombreClienta]) {
+            pedidos[nombreClienta] = [];
+        }
+
+        const nuevoPedido = {
+            producto: productoActual.nombre,
+            precio: productoActual.precio,
+            cantidad: cantidad
+        };
+
+        if (color) {
+            nuevoPedido.color = color;
+        }
+
+        pedidos[nombreClienta].push(nuevoPedido);
+    });
+
+    // Guardar en Firebase
+    database.ref('pedidos').set(pedidos);
+
+    mostrarNotificacion(`${clientasMasivo.length} clientas agregadas exitosamente`, 'success');
+    cerrarModoMasivo();
+    actualizarEstadisticasRapidas();
+}
+
+// Inicializar la aplicación cuando se carga la página
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('Inicializando aplicación...');
+    
+    // Configurar autocompletado
+    configurarAutocompletado();
+
+    // Actualizar estadísticas iniciales
+    setTimeout(() => {
+        actualizarEstadisticasRapidas();
+    }, 1000);
+
+    // Inicializar iconos de Feather
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+        console.log('Iconos de Feather inicializados');
+    } else {
+        console.error('Feather icons no está disponible');
+    }
+    
+    console.log('Aplicación inicializada correctamente');
+});
