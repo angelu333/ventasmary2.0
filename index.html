@@ -32,15 +32,15 @@
     <meta name="msapplication-TileColor" content="#d4a574">
     
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="icon-152.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-192.png">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-16.png">
     
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
     <!-- Header moderno -->
@@ -119,31 +119,6 @@
     <!-- Contenido principal -->
     <main class="main-content">
         <div class="container">
-            <!-- Dashboard de bienvenida -->
-            <div class="welcome-section" id="welcomeSection">
-                <div class="welcome-card">
-                    <div class="welcome-icon">
-                        <i data-feather="sparkles"></i>
-                    </div>
-                    <h2 class="welcome-title">¡Bienvenida a Ventas Mary!</h2>
-                    <p class="welcome-subtitle">Gestiona tus ventas de belleza de manera profesional</p>
-                    <div class="quick-stats">
-                        <div class="stat-item">
-                            <div class="stat-value" id="quickTotalVentas">0</div>
-                            <div class="stat-label">Ventas Hoy</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="quickTotalClientas">0</div>
-                            <div class="stat-label">Clientas</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="quickTotalProductos">0</div>
-                            <div class="stat-label">Productos</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Formulario de productos -->
             <div id="producto-form" class="form-section">
                 <div class="form-card">
@@ -307,15 +282,16 @@
         </div>
     </main>
 
-    <script src="app.js"></script>
-    <script>
-        // Inicializar iconos de Feather después de cargar todo
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof feather !== 'undefined') {
-                feather.replace();
-                console.log('Iconos inicializados');
-            }
-        });
-    </script>
+    <!-- Scripts modulares -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/firebase.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/productos.js"></script>
+    <script src="assets/js/clientas.js"></script>
+    <script src="assets/js/autocompletado.js"></script>
+    <script src="assets/js/modales.js"></script>
+    <script src="assets/js/pwa.js"></script>
+    <script src="assets/js/voz.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>

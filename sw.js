@@ -1,16 +1,20 @@
 // Service Worker para Ventas Mary PWA
-const CACHE_NAME = 'ventas-mary-v1.0.0';
+const CACHE_NAME = 'ventas-mary-v2.1.0';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/styles.css',
-  '/app.js',
+  '/assets/css/styles.css',
   '/manifest.json',
-  // CDN resources que necesitamos offline
-  'https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js',
-  'https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js',
-  'https://unpkg.com/feather-icons',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap'
+  '/assets/js/config.js',
+  '/assets/js/firebase.js',
+  '/assets/js/ui.js',
+  '/assets/js/productos.js',
+  '/assets/js/clientas.js',
+  '/assets/js/autocompletado.js',
+  '/assets/js/modales.js',
+  '/assets/js/pwa.js',
+  '/assets/js/voz.js',
+  '/assets/js/main.js'
 ];
 
 // Instalar Service Worker
@@ -105,8 +109,8 @@ self.addEventListener('push', (event) => {
   
   const options = {
     body: event.data ? event.data.text() : 'Nueva actualización disponible',
-    icon: '/icon-192.png',
-    badge: '/icon-72.png',
+    icon: '/assets/icons/icon-192.png',
+    badge: '/assets/icons/icon-72.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -116,12 +120,12 @@ self.addEventListener('push', (event) => {
       {
         action: 'explore',
         title: 'Ver',
-        icon: '/icon-192.png'
+        icon: '/assets/icons/icon-192.png'
       },
       {
         action: 'close',
         title: 'Cerrar',
-        icon: '/icon-192.png'
+        icon: '/assets/icons/icon-192.png'
       }
     ]
   };

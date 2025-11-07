@@ -1,0 +1,64 @@
+// ===== INICIALIZACIÓN PRINCIPAL =====
+
+// Inicializar la aplicación cuando se carga la página
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Inicializando Ventas Mary PWA...');
+    
+    // Verificar si es PWA
+    if (esPWA()) {
+        console.log('📱 Ejecutándose como PWA');
+        document.body.classList.add('pwa-mode');
+        isInstalled = true;
+    }
+    
+    // Cargar datos de Firebase
+    cargarDatos();
+    
+    // Verificar conectividad inicial (sin mostrar notificación)
+    setTimeout(() => {
+        verificarConectividad();
+    }, 2000);
+    
+    // Configurar autocompletado
+    configurarAutocompletado();
+
+    // Actualizar estadísticas iniciales
+    setTimeout(() => {
+        actualizarEstadisticasRapidas();
+    }, 1000);
+
+    // Inicializar iconos de Feather
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+        console.log('✅ Iconos de Feather inicializados');
+    }
+    
+    // Mostrar botón de instalación si está disponible
+    setTimeout(mostrarBotonInstalar, 2000);
+    
+    console.log('✅ Ventas Mary PWA inicializada correctamente');
+});
+
+// Funciones que necesitan estar disponibles globalmente para el HTML
+window.toggleSidebar = toggleSidebar;
+window.abrirModal = abrirModal;
+window.cerrarModal = cerrarModal;
+window.irAInicio = irAInicio;
+window.agregarProducto = agregarProducto;
+window.agregarCliente = agregarCliente;
+window.finalizarProducto = finalizarProducto;
+window.iniciarReconocimientoVoz = iniciarReconocimientoVoz;
+window.instalarPWA = instalarPWA;
+window.mostrarResumen = mostrarResumen;
+window.abrirModoMasivo = abrirModoMasivo;
+window.cerrarModoMasivo = cerrarModoMasivo;
+window.agregarClienteAModal = agregarClienteAModal;
+window.removerClienteMasivo = removerClienteMasivo;
+window.procesarRegistroMasivo = procesarRegistroMasivo;
+window.abrirModalEstadisticas = abrirModalEstadisticas;
+window.abrirModalGestionarClientas = abrirModalGestionarClientas;
+window.abrirModalBuscarClienta = abrirModalBuscarClienta;
+window.verProductosYClientas = verProductosYClientas;
+window.abrirModalEnviarWhatsApp = abrirModalEnviarWhatsApp;
+window.generarPDF = generarPDF;
+window.confirmarReiniciarInventario = confirmarReiniciarInventario;

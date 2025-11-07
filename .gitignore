@@ -1,0 +1,23 @@
+# Archivos de desarrollo
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (si se usan en el futuro)
+node_modules/
+
+# Archivos de prueba
+test.html
+colores-test.html
+*-test.html
+
+# Archivos temporales
+*.bak
+*.old
