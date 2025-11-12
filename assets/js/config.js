@@ -22,6 +22,7 @@ let estadisticasSemanales = {};
 let graficosEstadisticas = {};
 let historialGanancias = {};
 let clientasMasivo = [];
+let inventario = {}; // Nuevo: Sistema de inventario
 
 // Variables para autocompletado
 let selectedSuggestionIndex = -1;

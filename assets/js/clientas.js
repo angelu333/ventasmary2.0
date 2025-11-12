@@ -43,6 +43,11 @@ function agregarCliente() {
         
         pedidos[nombreClienta].push(nuevoPedido);
         
+        // Descontar del inventario si usa inventario
+        if (productoActual.usaInventario && productoActual.id) {
+            descontarStock(productoActual.nombre, cantidad);
+        }
+        
         // Limpiar los campos
         document.getElementById('nombreClienta').value = '';
         document.getElementById('colorProducto').value = '';

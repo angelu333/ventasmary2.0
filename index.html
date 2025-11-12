@@ -82,9 +82,15 @@
                 </ul>
             </div>
             <div class="nav-section">
+                <h4 class="nav-section-title">Inventario</h4>
+                <ul class="nav-list">
+                    <li><button onclick="abrirGestionInventario()" class="nav-btn"><i data-feather="box"></i><span>Gestión de Inventario</span></button></li>
+                    <li><button onclick="verProductosYClientas()" class="nav-btn"><i data-feather="package"></i><span>Ver Productos Vendidos</span></button></li>
+                </ul>
+            </div>
+            <div class="nav-section">
                 <h4 class="nav-section-title">Herramientas</h4>
                 <ul class="nav-list">
-                    <li><button onclick="verProductosYClientas()" class="nav-btn"><i data-feather="package"></i><span>Ver Productos</span></button></li>
                     <li><button onclick="abrirModalEnviarWhatsApp()" class="nav-btn"><i data-feather="message-circle"></i><span>Enviar WhatsApp</span></button></li>
                     <li><button onclick="generarPDF()" class="nav-btn"><i data-feather="file-text"></i><span>Generar PDF</span></button></li>
                     <li><button onclick="confirmarReiniciarInventario()" class="nav-btn danger"><i data-feather="refresh-cw"></i><span>Reiniciar</span></button></li>
@@ -127,24 +133,54 @@
                             <i data-feather="plus-circle"></i>
                         </div>
                         <h3 class="form-title">Agregar Nuevo Producto</h3>
-                        <p class="form-subtitle">Ingresa los detalles del producto que deseas vender</p>
+                        <p class="form-subtitle">Selecciona del inventario o ingresa manualmente</p>
                     </div>
                     <div class="form-body">
-                        <div class="input-group">
-                            <label for="nombreProducto" class="input-label">
-                                <i data-feather="tag"></i>
-                                Nombre del Producto
-                            </label>
-                            <input type="text" id="nombreProducto" class="form-input" placeholder="Ej: Esmalte de uñas rojo">
+                        <!-- Selector de modo -->
+                        <div class="modo-selector" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <button id="btn-modo-inventario" onclick="cambiarModoProducto('inventario')" class="btn btn-outline active" style="flex: 1;">
+                                <i data-feather="package"></i>
+                                Desde Inventario
+                            </button>
+                            <button id="btn-modo-manual" onclick="cambiarModoProducto('manual')" class="btn btn-outline" style="flex: 1;">
+                                <i data-feather="edit-3"></i>
+                                Manual
+                            </button>
                         </div>
-                        <div class="input-group">
-                            <label for="precioProducto" class="input-label">
-                                <i data-feather="dollar-sign"></i>
-                                Precio del Producto
-                            </label>
-                            <input type="number" id="precioProducto" class="form-input" placeholder="0.00">
+
+                        <!-- Modo Inventario -->
+                        <div id="modo-inventario">
+                            <div class="input-group">
+                                <label for="selectProductoInventario" class="input-label">
+                                    <i data-feather="package"></i>
+                                    Selecciona un Producto
+                                </label>
+                                <select id="selectProductoInventario" class="form-input">
+                                    <option value="">Cargando productos...</option>
+                                </select>
+                            </div>
+                            <div id="info-producto-seleccionado"></div>
                         </div>
-                        <button onclick="agregarProducto()" class="btn btn-primary btn-large">
+
+                        <!-- Modo Manual -->
+                        <div id="modo-manual" style="display: none;">
+                            <div class="input-group">
+                                <label for="nombreProducto" class="input-label">
+                                    <i data-feather="tag"></i>
+                                    Nombre del Producto
+                                </label>
+                                <input type="text" id="nombreProducto" class="form-input" placeholder="Ej: Esmalte de uñas rojo">
+                            </div>
+                            <div class="input-group">
+                                <label for="precioProducto" class="input-label">
+                                    <i data-feather="dollar-sign"></i>
+                                    Precio del Producto
+                                </label>
+                                <input type="number" id="precioProducto" class="form-input" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <button onclick="agregarProducto()" class="btn btn-primary btn-large" style="margin-top: 1.5rem;">
                             <i data-feather="arrow-right"></i>
                             Continuar con Clientas
                         </button>
@@ -285,6 +321,7 @@
     <!-- Scripts modulares -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/firebase.js"></script>
+    <script src="assets/js/inventario.js"></script>
     <script src="assets/js/ui.js"></script>
     <script src="assets/js/productos.js"></script>
     <script src="assets/js/clientas.js"></script>

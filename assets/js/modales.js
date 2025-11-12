@@ -277,7 +277,7 @@ function abrirModalGestionarClientas() {
         const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
 
         contenido += `
-            <div class="clienta-gestion-item">
+            <div class="clienta-gestion-item" onclick="editarPedidosClienta('${clientaSafe}')" style="cursor: pointer;">
                 <div class="clienta-info">
                     <strong><i data-feather="user"></i> ${clienta}</strong>
                     <div class="clienta-stats">
@@ -285,9 +285,14 @@ function abrirModalGestionarClientas() {
                         <span><i data-feather="dollar-sign"></i> <strong>$${totalCompras}</strong></span>
                     </div>
                 </div>
-                <button onclick="eliminarClienta('${clientaSafe}')" class="btn btn-danger btn-small">
-                    <i data-feather="trash-2"></i> Eliminar
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="event.stopPropagation(); eliminarClienta('${clientaSafe}')" class="btn btn-danger btn-small">
+                        <i data-feather="trash-2"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); editarPedidosClienta('${clientaSafe}')" class="btn btn-primary btn-small">
+                        <i data-feather="edit-2"></i>
+                    </button>
+                </div>
             </div>
         `;
     }
@@ -305,6 +310,207 @@ function eliminarClienta(nombre) {
         mostrarNotificacion(`${nombre} eliminada correctamente`, 'success');
         abrirModalGestionarClientas();
     }
+}
+
+// Editar pedidos de clienta
+function editarPedidosClienta(nombreClienta) {
+    const pedidosClienta = pedidos[nombreClienta];
+    const totalCompras = pedidosClienta.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
+    
+    let contenido = `
+        <h3 style="margin-bottom: 1rem;"><i data-feather="user"></i> ${nombreClienta}</h3>
+        <div style="background: #f9f1e8; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+            <p style="margin: 0; color: #7d6450;">Total: <strong>$${totalCompras}</strong> • ${pedidosClienta.length} pedidos</p>
+        </div>
+        <div class="pedidos-editar-list">
+    `;
+
+    pedidosClienta.forEach((pedido, index) => {
+        const subtotal = pedido.precio * pedido.cantidad;
+        const colorInfo = pedido.color ? ` <span class="color-tag">${pedido.color}</span>` : '';
+        const clientaSafe = nombreClienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        
+        contenido += `
+            <div class="pedido-editar-item">
+                <div class="pedido-editar-info">
+                    <strong><i data-feather="package"></i> ${pedido.producto}</strong>${colorInfo}
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.875rem; color: #7d6450;">
+                        <span>Cantidad: <strong>${pedido.cantidad}</strong></span>
+                        <span>Precio: <strong>$${pedido.precio}</strong></span>
+                        <span>Subtotal: <strong>$${subtotal}</strong></span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="editarPedidoIndividual('${clientaSafe}', ${index})" class="btn btn-secondary btn-small">
+                        <i data-feather="edit-2"></i>
+                    </button>
+                    <button onclick="eliminarPedidoIndividual('${clientaSafe}', ${index})" class="btn btn-danger btn-small">
+                        <i data-feather="trash-2"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    contenido += `
+        </div>
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #f0e6d6;">
+            <button onclick="agregarPedidoAClienta('${nombreClienta.replace(/'/g, "\\'").replace(/"/g, '\\"')}')" class="btn btn-primary btn-large" style="width: 100%;">
+                <i data-feather="plus"></i> Agregar Nuevo Producto
+            </button>
+        </div>
+    `;
+
+    abrirModal(contenido);
+    if (typeof feather !== 'undefined') feather.replace();
+}
+
+// Eliminar pedido individual
+function eliminarPedidoIndividual(nombreClienta, index) {
+    if (confirm('¿Eliminar este pedido?')) {
+        pedidos[nombreClienta].splice(index, 1);
+        
+        // Si no quedan pedidos, eliminar clienta
+        if (pedidos[nombreClienta].length === 0) {
+            delete pedidos[nombreClienta];
+            guardarPedidos();
+            mostrarNotificacion('Pedido eliminado. Clienta sin pedidos fue eliminada.', 'success');
+            abrirModalGestionarClientas();
+        } else {
+            guardarPedidos();
+            mostrarNotificacion('Pedido eliminado', 'success');
+            editarPedidosClienta(nombreClienta);
+        }
+    }
+}
+
+// Editar pedido individual
+function editarPedidoIndividual(nombreClienta, index) {
+    const pedido = pedidos[nombreClienta][index];
+    
+    const contenido = `
+        <h3 style="margin-bottom: 1rem;"><i data-feather="edit-2"></i> Editar Pedido</h3>
+        <p style="margin-bottom: 1rem; color: #7d6450;"><strong>${nombreClienta}</strong> - ${pedido.producto}</p>
+        <div class="input-group">
+            <label class="input-label">Producto</label>
+            <input type="text" id="editProducto" class="form-input" value="${pedido.producto}">
+        </div>
+        <div class="form-row">
+            <div class="input-group">
+                <label class="input-label">Precio</label>
+                <input type="number" id="editPrecio" class="form-input" value="${pedido.precio}" min="0">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Cantidad</label>
+                <input type="number" id="editCantidad" class="form-input" value="${pedido.cantidad}" min="1">
+            </div>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Color (Opcional)</label>
+            <input type="text" id="editColor" class="form-input" value="${pedido.color || ''}" placeholder="Color">
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+            <button onclick="guardarEdicionPedido('${nombreClienta.replace(/'/g, "\\'").replace(/"/g, '\\"')}', ${index})" class="btn btn-primary btn-large" style="flex: 1;">
+                <i data-feather="check"></i> Guardar
+            </button>
+            <button onclick="editarPedidosClienta('${nombreClienta.replace(/'/g, "\\'").replace(/"/g, '\\"')}')" class="btn btn-outline btn-large" style="flex: 1;">
+                <i data-feather="x"></i> Cancelar
+            </button>
+        </div>
+    `;
+    
+    abrirModal(contenido);
+    if (typeof feather !== 'undefined') feather.replace();
+}
+
+// Guardar edición de pedido
+function guardarEdicionPedido(nombreClienta, index) {
+    const producto = document.getElementById('editProducto').value.trim();
+    const precio = parseInt(document.getElementById('editPrecio').value) || 0;
+    const cantidad = parseInt(document.getElementById('editCantidad').value) || 1;
+    const color = document.getElementById('editColor').value.trim();
+
+    if (!producto || precio <= 0) {
+        mostrarNotificacion('Completa todos los campos correctamente', 'error');
+        return;
+    }
+
+    pedidos[nombreClienta][index] = {
+        producto: producto,
+        precio: precio,
+        cantidad: cantidad
+    };
+
+    if (color) {
+        pedidos[nombreClienta][index].color = color;
+    }
+
+    guardarPedidos();
+    mostrarNotificacion('Pedido actualizado', 'success');
+    editarPedidosClienta(nombreClienta);
+}
+
+// Agregar pedido a clienta existente
+function agregarPedidoAClienta(nombreClienta) {
+    const contenido = `
+        <h3 style="margin-bottom: 1rem;"><i data-feather="plus"></i> Agregar Producto</h3>
+        <p style="margin-bottom: 1rem; color: #7d6450;">Clienta: <strong>${nombreClienta}</strong></p>
+        <div class="input-group">
+            <label class="input-label">Producto</label>
+            <input type="text" id="nuevoProducto" class="form-input" placeholder="Nombre del producto">
+        </div>
+        <div class="form-row">
+            <div class="input-group">
+                <label class="input-label">Precio</label>
+                <input type="number" id="nuevoPrecio" class="form-input" placeholder="0" min="0">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Cantidad</label>
+                <input type="number" id="nuevaCantidad" class="form-input" value="1" min="1">
+            </div>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Color (Opcional)</label>
+            <input type="text" id="nuevoColor" class="form-input" placeholder="Color">
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <button onclick="confirmarAgregarPedido('${nombreClienta.replace(/'/g, "\\'").replace(/"/g, '\\"')}')" class="btn btn-primary btn-large" style="width: 100%;">
+                <i data-feather="check"></i> Agregar
+            </button>
+        </div>
+    `;
+    
+    abrirModal(contenido);
+    if (typeof feather !== 'undefined') feather.replace();
+    setTimeout(() => document.getElementById('nuevoProducto').focus(), 100);
+}
+
+// Confirmar agregar pedido
+function confirmarAgregarPedido(nombreClienta) {
+    const producto = document.getElementById('nuevoProducto').value.trim();
+    const precio = parseInt(document.getElementById('nuevoPrecio').value) || 0;
+    const cantidad = parseInt(document.getElementById('nuevaCantidad').value) || 1;
+    const color = document.getElementById('nuevoColor').value.trim();
+
+    if (!producto || precio <= 0) {
+        mostrarNotificacion('Completa todos los campos correctamente', 'error');
+        return;
+    }
+
+    const nuevoPedido = {
+        producto: producto,
+        precio: precio,
+        cantidad: cantidad
+    };
+
+    if (color) {
+        nuevoPedido.color = color;
+    }
+
+    pedidos[nombreClienta].push(nuevoPedido);
+    guardarPedidos();
+    mostrarNotificacion('Producto agregado', 'success');
+    editarPedidosClienta(nombreClienta);
 }
 
 // Buscar clienta
@@ -463,8 +669,9 @@ function verProductosYClientas() {
 
     for (let key in productosPorNombre) {
         const prod = productosPorNombre[key];
+        const productoSafe = prod.nombre.replace(/'/g, "\\'").replace(/"/g, '\\"');
         contenido += `
-            <div class="producto-card">
+            <div class="producto-card" onclick="verDetalleProducto('${productoSafe}')" style="cursor: pointer;">
                 <div class="producto-header">
                     <strong><i data-feather="tag"></i> ${prod.nombre}</strong>
                     <span class="precio-tag">$${prod.precio}</span>
@@ -483,6 +690,9 @@ function verProductosYClientas() {
                         <span>Total: <strong>$${prod.total}</strong></span>
                     </div>
                 </div>
+                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f0e6d6; text-align: center; color: #b8a082; font-size: 0.875rem;">
+                    <i data-feather="eye"></i> Click para ver detalles
+                </div>
             </div>
         `;
     }
@@ -491,6 +701,157 @@ function verProductosYClientas() {
     abrirModal(contenido);
     cerrarSidebar();
     if (typeof feather !== 'undefined') feather.replace();
+}
+
+// Ver detalle de producto
+function verDetalleProducto(nombreProducto) {
+    const clientasConProducto = [];
+    
+    for (let clienta in pedidos) {
+        pedidos[clienta].forEach((pedido, index) => {
+            if (pedido.producto === nombreProducto) {
+                clientasConProducto.push({
+                    nombre: clienta,
+                    pedido: pedido,
+                    index: index
+                });
+            }
+        });
+    }
+
+    let contenido = `
+        <h3 style="margin-bottom: 1rem;"><i data-feather="tag"></i> ${nombreProducto}</h3>
+        <p style="margin-bottom: 1.5rem; color: #7d6450;">Clientas que ordenaron este producto:</p>
+        <div class="clientas-producto-list">
+    `;
+
+    clientasConProducto.forEach(item => {
+        const clientaSafe = item.nombre.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const colorInfo = item.pedido.color ? ` <span class="color-tag">${item.pedido.color}</span>` : '';
+        const subtotal = item.pedido.precio * item.pedido.cantidad;
+        
+        contenido += `
+            <div class="clienta-producto-item">
+                <div class="clienta-producto-info">
+                    <strong><i data-feather="user"></i> ${item.nombre}</strong>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.875rem; color: #7d6450;">
+                        <span>Cantidad: <strong>${item.pedido.cantidad}</strong></span>
+                        ${colorInfo}
+                        <span>Subtotal: <strong>$${subtotal}</strong></span>
+                    </div>
+                </div>
+                <button onclick="eliminarPedidoProducto('${clientaSafe}', ${item.index})" class="btn btn-danger btn-small">
+                    <i data-feather="trash-2"></i> Eliminar
+                </button>
+            </div>
+        `;
+    });
+
+    contenido += `
+        </div>
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #f0e6d6;">
+            <button onclick="agregarClientaAProducto('${nombreProducto.replace(/'/g, "\\'").replace(/"/g, '\\"')}')" class="btn btn-primary btn-large" style="width: 100%;">
+                <i data-feather="user-plus"></i> Agregar Clienta a este Producto
+            </button>
+        </div>
+    `;
+
+    abrirModal(contenido);
+    if (typeof feather !== 'undefined') feather.replace();
+}
+
+// Agregar clienta a producto existente
+function agregarClientaAProducto(nombreProducto) {
+    const contenido = `
+        <h3 style="margin-bottom: 1rem;"><i data-feather="user-plus"></i> Agregar Clienta</h3>
+        <p style="margin-bottom: 1rem; color: #7d6450;">Producto: <strong>${nombreProducto}</strong></p>
+        <div class="input-group">
+            <label class="input-label">Nombre de la Clienta</label>
+            <input type="text" id="nombreClientaNueva" class="form-input" placeholder="Nombre de la clienta">
+        </div>
+        <div class="form-row">
+            <div class="input-group">
+                <label class="input-label">Color (Opcional)</label>
+                <input type="text" id="colorNuevo" class="form-input" placeholder="Color">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Cantidad</label>
+                <input type="number" id="cantidadNueva" class="form-input" value="1" min="1">
+            </div>
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <button onclick="confirmarAgregarClientaAProducto('${nombreProducto.replace(/'/g, "\\'").replace(/"/g, '\\"')}')" class="btn btn-primary btn-large" style="width: 100%;">
+                <i data-feather="check"></i> Agregar
+            </button>
+        </div>
+    `;
+    abrirModal(contenido);
+    if (typeof feather !== 'undefined') feather.replace();
+    setTimeout(() => document.getElementById('nombreClientaNueva').focus(), 100);
+}
+
+// Confirmar agregar clienta a producto
+function confirmarAgregarClientaAProducto(nombreProducto) {
+    const nombre = document.getElementById('nombreClientaNueva').value.trim();
+    const color = document.getElementById('colorNuevo').value.trim();
+    const cantidad = parseInt(document.getElementById('cantidadNueva').value) || 1;
+
+    if (!nombre) {
+        mostrarNotificacion('Ingresa el nombre de la clienta', 'error');
+        return;
+    }
+
+    // Capitalizar nombre
+    const nombreFormateado = nombre.split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+    // Buscar el precio del producto
+    let precio = 15; // Precio por defecto
+    for (let clienta in pedidos) {
+        const pedido = pedidos[clienta].find(p => p.producto === nombreProducto);
+        if (pedido) {
+            precio = pedido.precio;
+            break;
+        }
+    }
+
+    // Agregar pedido
+    if (!pedidos[nombreFormateado]) {
+        pedidos[nombreFormateado] = [];
+    }
+
+    const nuevoPedido = {
+        producto: nombreProducto,
+        precio: precio,
+        cantidad: cantidad
+    };
+
+    if (color) {
+        nuevoPedido.color = color;
+    }
+
+    pedidos[nombreFormateado].push(nuevoPedido);
+    guardarPedidos();
+
+    mostrarNotificacion(`${nombreFormateado} agregada a ${nombreProducto}`, 'success');
+    verDetalleProducto(nombreProducto);
+}
+
+// Eliminar pedido de producto
+function eliminarPedidoProducto(nombreClienta, index) {
+    if (confirm(`¿Eliminar este pedido de ${nombreClienta}?`)) {
+        pedidos[nombreClienta].splice(index, 1);
+        
+        // Si la clienta no tiene más pedidos, eliminarla
+        if (pedidos[nombreClienta].length === 0) {
+            delete pedidos[nombreClienta];
+        }
+        
+        guardarPedidos();
+        mostrarNotificacion('Pedido eliminado', 'success');
+        verProductosYClientas();
+    }
 }
 
 // Enviar por WhatsApp
@@ -575,7 +936,7 @@ function enviarPorClienta() {
         const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
         const totalClienta = pedidos[clienta].reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
         const cantidadProductos = pedidos[clienta].reduce((sum, p) => sum + p.cantidad, 0);
-        
+
         contenido += `
             <button onclick="enviarMensajeClienta('${clientaSafe}')" class="btn btn-outline btn-large" style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="display: flex; align-items: center; gap: 0.5rem;">
@@ -702,6 +1063,128 @@ function generarPDF() {
 
         // Guardar PDF
         doc.save(`ventas-mary-${fecha}.pdf`);
+        mostrarNotificacion('PDF generado correctamente', 'success');
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        mostrarNotificacion('Error al generar PDF', 'error');
+    }
+}
+
+// Reiniciar inventario
+function confirmarReiniciarInventario() {
+    if (confirm('¿Estás seguro de que quieres reiniciar el inventario? Esto borrará todos los pedidos actuales.')) {
+        pedidos = {};
+        guardarPedidos();
+        mostrarNotificacion('Inventario reiniciado correctamente', 'success');
+        irAInicio();
+    }
+    cerrarSidebar();
+}
+
+
+// Generar PDF
+function generarPDF() {
+    if (Object.keys(pedidos).length === 0) {
+        mostrarNotificacion('No hay pedidos para generar PDF', 'error');
+        cerrarSidebar();
+        return;
+    }
+
+    mostrarNotificacion('Generando PDF...', 'info');
+    cerrarSidebar();
+
+    try {
+        const { jsPDF } = window.jspdf;
+        // Formato horizontal (landscape)
+        const doc = new jsPDF('landscape', 'mm', 'a4');
+        
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
+        const contentWidth = pageWidth - (margin * 2);
+        
+        // Título
+        doc.setFontSize(18);
+        doc.setTextColor(139, 69, 19);
+        doc.text('VENTAS MARY', pageWidth / 2, 15, { align: 'center' });
+        
+        // Fecha
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        const fecha = new Date().toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        doc.text(`Fecha: ${fecha}`, pageWidth / 2, 22, { align: 'center' });
+
+        let y = 32;
+        const lineHeight = 5;
+        const clientaSpacing = 3;
+        const maxY = pageHeight - margin;
+
+        doc.setFontSize(9);
+        doc.setTextColor(0);
+
+        // Calcular espacio necesario para cada clienta
+        function calcularAlturaClienta(clienta) {
+            const numPedidos = pedidos[clienta].length;
+            return lineHeight + (numPedidos * lineHeight) + lineHeight + clientaSpacing;
+        }
+
+        for (let clienta in pedidos) {
+            const alturaClienta = calcularAlturaClienta(clienta);
+            
+            // Si no cabe en la página actual, crear nueva página
+            if (y + alturaClienta > maxY) {
+                doc.addPage();
+                y = margin;
+            }
+
+            // Nombre de clienta con fondo
+            doc.setFillColor(244, 228, 209);
+            doc.rect(margin, y - 4, contentWidth, lineHeight + 2, 'F');
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(10);
+            doc.text(clienta, margin + 3, y);
+            y += lineHeight + 1;
+
+            let totalClienta = 0;
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(9);
+
+            // Pedidos de la clienta
+            pedidos[clienta].forEach(pedido => {
+                const subtotal = pedido.precio * pedido.cantidad;
+                totalClienta += subtotal;
+                const colorInfo = pedido.color ? ` (${pedido.color})` : '';
+                
+                // Producto
+                doc.text(`${pedido.producto}${colorInfo}`, margin + 5, y);
+                
+                // Cantidad
+                doc.text(`${pedido.cantidad} x $${pedido.precio}`, margin + 120, y);
+                
+                // Subtotal
+                doc.setFont(undefined, 'bold');
+                doc.text(`$${subtotal}`, margin + 160, y, { align: 'right' });
+                doc.setFont(undefined, 'normal');
+                
+                y += lineHeight;
+            });
+
+            // Subtotal de clienta
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(10);
+            doc.text(`Subtotal: $${totalClienta}`, margin + 160, y, { align: 'right' });
+            y += lineHeight + clientaSpacing;
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(9);
+        }
+
+        // Guardar PDF
+        const nombreArchivo = `ventas-mary-${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(nombreArchivo);
         mostrarNotificacion('PDF generado correctamente', 'success');
     } catch (error) {
         console.error('Error al generar PDF:', error);

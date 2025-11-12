@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Cargar datos de Firebase
     cargarDatos();
+    cargarInventario();
     
     // Verificar conectividad inicial (sin mostrar notificación)
     setTimeout(() => {
@@ -26,6 +27,11 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
         actualizarEstadisticasRapidas();
     }, 1000);
+    
+    // Cargar selector de inventario
+    setTimeout(() => {
+        cambiarModoProducto('inventario');
+    }, 1500);
 
     // Inicializar iconos de Feather
     if (typeof feather !== 'undefined') {
@@ -62,10 +68,30 @@ window.verProductosYClientas = verProductosYClientas;
 window.abrirModalEnviarWhatsApp = abrirModalEnviarWhatsApp;
 window.generarPDF = generarPDF;
 window.confirmarReiniciarInventario = confirmarReiniciarInventario;
-// Nuevas funciones
+// Funciones de gestión
 window.eliminarClienta = eliminarClienta;
 window.buscarClientaEnTiempoReal = buscarClientaEnTiempoReal;
 window.verDetalleClienta = verDetalleClienta;
 window.enviarResumenCompleto = enviarResumenCompleto;
 window.enviarPorClienta = enviarPorClienta;
 window.enviarMensajeClienta = enviarMensajeClienta;
+// Funciones de edición de pedidos
+window.editarPedidosClienta = editarPedidosClienta;
+window.eliminarPedidoIndividual = eliminarPedidoIndividual;
+window.editarPedidoIndividual = editarPedidoIndividual;
+window.guardarEdicionPedido = guardarEdicionPedido;
+window.agregarPedidoAClienta = agregarPedidoAClienta;
+window.confirmarAgregarPedido = confirmarAgregarPedido;
+// Funciones de productos
+window.verDetalleProducto = verDetalleProducto;
+window.agregarClientaAProducto = agregarClientaAProducto;
+window.confirmarAgregarClientaAProducto = confirmarAgregarClientaAProducto;
+window.eliminarPedidoProducto = eliminarPedidoProducto;
+window.cambiarModoProducto = cambiarModoProducto;
+// Funciones de inventario
+window.abrirGestionInventario = abrirGestionInventario;
+window.agregarProductoInventario = agregarProductoInventario;
+window.guardarProductoInventario = guardarProductoInventario;
+window.editarProductoInventario = editarProductoInventario;
+window.actualizarProductoInventario = actualizarProductoInventario;
+window.eliminarProductoInventario = eliminarProductoInventario;
