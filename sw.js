@@ -1,5 +1,5 @@
 // Service Worker para Ventas Mary PWA
-const CACHE_NAME = 'ventas-mary-v2.2.0';
+const CACHE_NAME = 'ventas-mary-v2.3.0';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const urlsToCache = [
   '/manifest.json',
   '/assets/js/config.js',
   '/assets/js/firebase.js',
+  '/assets/js/inventario.js',
   '/assets/js/ui.js',
   '/assets/js/productos.js',
   '/assets/js/clientas.js',

@@ -179,6 +179,15 @@ function procesarVentaPorVoz(nombre, color, cantidad) {
     const precio = productoActual.precio;
     const nombreProducto = productoActual.nombre;
 
+    // Verificar stock si usa inventario
+    if (productoActual.usaInventario && productoActual.id) {
+        const prod = inventario[productoActual.id];
+        if (prod && prod.stock < cantidad) {
+            mostrarNotificacion(`⚠️ Stock insuficiente. Disponible: ${prod.stock}`, 'error');
+            return;
+        }
+    }
+
     // Agregar a pedidos
     if (!pedidos[nombreFormateado]) {
         pedidos[nombreFormateado] = [];
@@ -196,6 +205,11 @@ function procesarVentaPorVoz(nombre, color, cantidad) {
 
     pedidos[nombreFormateado].push(nuevoPedido);
 
+    // Descontar del inventario si usa inventario
+    if (productoActual.usaInventario && productoActual.id) {
+        descontarStock(nombreProducto, cantidad);
+    }
+
     // Guardar en Firebase
     guardarPedidos();
 
@@ -210,9 +224,13 @@ function procesarVentaPorVoz(nombre, color, cantidad) {
     actualizarEstadisticasRapidas();
     
     // Limpiar campos del formulario
-    document.getElementById('nombreClienta').value = '';
-    document.getElementById('colorProducto').value = '';
-    document.getElementById('cantidadProducto').value = '1';
+    const nombreInput = document.getElementById('nombreClienta');
+    const colorInput = document.getElementById('colorProducto');
+    const cantidadInput = document.getElementById('cantidadProducto');
+    
+    if (nombreInput) nombreInput.value = '';
+    if (colorInput) colorInput.value = '';
+    if (cantidadInput) cantidadInput.value = '1';
 }
 
 // Obtener precio por defecto según tipo de producto
