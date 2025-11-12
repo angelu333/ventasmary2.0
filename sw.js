@@ -1,5 +1,5 @@
 // Service Worker para Ventas Mary PWA
-const CACHE_NAME = 'ventas-mary-v2.1.0';
+const CACHE_NAME = 'ventas-mary-v2.2.0';
 const urlsToCache = [
   '/',
   '/index.html',
