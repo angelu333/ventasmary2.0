@@ -9,13 +9,13 @@ function abrirModoMasivo() {
         if (titulo && productoActual.nombre) {
             titulo.textContent = `Registro Masivo - ${productoActual.nombre}`;
         }
-        
+
         // Limpiar campos
         const colorMasivo = document.getElementById('colorMasivo');
         const cantidadMasivo = document.getElementById('cantidadMasivo');
         if (colorMasivo) colorMasivo.value = '';
         if (cantidadMasivo) cantidadMasivo.value = '1';
-        
+
         clientasMasivo = [];
         actualizarListaClientasMasivo();
     }
@@ -68,17 +68,17 @@ function removerClienteMasivo(index) {
 function agregarClienteAModal() {
     const input = document.getElementById('nuevaClienteMasivo');
     if (!input) return;
-    
+
     const nombre = input.value.trim();
     if (nombre && !clientasMasivo.includes(nombre)) {
         const nombreFormateado = nombre.split(' ')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
-        
+
         clientasMasivo.push(nombreFormateado);
         actualizarListaClientasMasivo();
         input.value = '';
-        
+
         const suggestions = document.getElementById('suggestionsMasivo');
         if (suggestions) suggestions.style.display = 'none';
     }
@@ -87,7 +87,7 @@ function agregarClienteAModal() {
 function procesarRegistroMasivo() {
     const colorInput = document.getElementById('colorMasivo');
     const cantidadInput = document.getElementById('cantidadMasivo');
-    
+
     const color = colorInput ? colorInput.value.trim() : '';
     const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 1 : 1;
 
@@ -198,7 +198,7 @@ function mostrarResumen() {
     const welcomeSection = document.getElementById('welcomeSection');
     const productoForm = document.getElementById('producto-form');
     const clienteForm = document.getElementById('cliente-form');
-    
+
     if (welcomeSection) welcomeSection.style.display = 'none';
     if (productoForm) productoForm.style.display = 'none';
     if (clienteForm) clienteForm.style.display = 'none';
@@ -273,7 +273,8 @@ function abrirModalGestionarClientas() {
     for (let clienta in pedidos) {
         const totalCompras = pedidos[clienta].reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
         const cantidadProductos = pedidos[clienta].reduce((sum, p) => sum + p.cantidad, 0);
-        
+        const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
+
         contenido += `
             <div class="clienta-gestion-item">
                 <div class="clienta-info">
@@ -283,7 +284,7 @@ function abrirModalGestionarClientas() {
                         <span><i data-feather="dollar-sign"></i> ${totalCompras}</span>
                     </div>
                 </div>
-                <button onclick="eliminarClienta('${clienta}')" class="btn btn-danger btn-small">
+                <button onclick="eliminarClienta('${clientaSafe}')" class="btn btn-danger btn-small">
                     <i data-feather="trash-2"></i> Eliminar
                 </button>
             </div>
@@ -319,7 +320,7 @@ function abrirModalBuscarClienta() {
     abrirModal(contenido);
     cerrarSidebar();
     if (typeof feather !== 'undefined') feather.replace();
-    
+
     setTimeout(() => {
         document.getElementById('buscarClientaInput').focus();
     }, 100);
@@ -335,7 +336,7 @@ function buscarClientaEnTiempoReal(query) {
     }
 
     const queryLower = query.toLowerCase();
-    const resultados = Object.keys(pedidos).filter(clienta => 
+    const resultados = Object.keys(pedidos).filter(clienta =>
         clienta.toLowerCase().includes(queryLower)
     );
 
@@ -354,7 +355,8 @@ function buscarClientaEnTiempoReal(query) {
     resultados.forEach(clienta => {
         const totalCompras = pedidos[clienta].reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
         const cantidadProductos = pedidos[clienta].reduce((sum, p) => sum + p.cantidad, 0);
-        
+        const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
+
         html += `
             <div class="clienta-resultado">
                 <div class="clienta-info">
@@ -364,7 +366,7 @@ function buscarClientaEnTiempoReal(query) {
                         <span><i data-feather="dollar-sign"></i> ${totalCompras}</span>
                     </div>
                 </div>
-                <button onclick="verDetalleClienta('${clienta}')" class="btn btn-primary btn-small">
+                <button onclick="verDetalleClienta('${clientaSafe}')" class="btn btn-primary btn-small">
                     <i data-feather="eye"></i> Ver Detalle
                 </button>
             </div>
@@ -379,7 +381,7 @@ function buscarClientaEnTiempoReal(query) {
 function verDetalleClienta(nombre) {
     const pedidosClienta = pedidos[nombre];
     const totalCompras = pedidosClienta.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
-    
+
     let contenido = `
         <h3><i data-feather="user"></i> ${nombre}</h3>
         <div class="detalle-clienta">
@@ -534,14 +536,14 @@ function enviarResumenCompleto() {
     for (let clienta in pedidos) {
         let totalClienta = 0;
         mensaje += `👤 *${clienta}*\n`;
-        
+
         pedidos[clienta].forEach(pedido => {
             const subtotal = pedido.precio * pedido.cantidad;
             totalClienta += subtotal;
             const colorInfo = pedido.color ? ` (${pedido.color})` : '';
             mensaje += `   • ${pedido.producto}${colorInfo} - ${pedido.cantidad} x $${pedido.precio} = $${subtotal}\n`;
         });
-        
+
         mensaje += `   💰 Subtotal: $${totalClienta}\n\n`;
         totalGeneral += totalClienta;
     }
@@ -563,8 +565,9 @@ function enviarPorClienta() {
     `;
 
     for (let clienta in pedidos) {
+        const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
         contenido += `
-            <button onclick="enviarMensajeClienta('${clienta}')" class="btn btn-outline btn-large">
+            <button onclick="enviarMensajeClienta('${clientaSafe}')" class="btn btn-outline btn-large">
                 <i data-feather="message-circle"></i>
                 ${clienta}
             </button>
@@ -580,7 +583,7 @@ function enviarMensajeClienta(nombre) {
     let mensaje = `🌟 *RESUMEN DE COMPRA* 🌟\n\n`;
     mensaje += `Hola *${nombre}*! 👋\n\n`;
     mensaje += `Aquí está el detalle de tu compra:\n\n`;
-    
+
     let total = 0;
     pedidos[nombre].forEach(pedido => {
         const subtotal = pedido.precio * pedido.cantidad;
@@ -618,7 +621,7 @@ function generarPDF() {
         doc.setFontSize(20);
         doc.setTextColor(139, 69, 19);
         doc.text('VENTAS MARY', 105, 20, { align: 'center' });
-        
+
         doc.setFontSize(14);
         doc.text('Resumen de Ventas', 105, 30, { align: 'center' });
 

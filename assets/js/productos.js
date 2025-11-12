@@ -70,3 +70,44 @@ function calcularTotalProductos() {
     }
     return total;
 }
+
+// Obtener clienta que más compró
+function obtenerClientaTop() {
+    let clientaTop = { nombre: '', total: 0 };
+    
+    for (let clienta in pedidos) {
+        let total = 0;
+        pedidos[clienta].forEach(pedido => {
+            total += pedido.precio * pedido.cantidad;
+        });
+        
+        if (total > clientaTop.total) {
+            clientaTop = { nombre: clienta, total: total };
+        }
+    }
+    
+    return clientaTop;
+}
+
+// Obtener producto más vendido
+function obtenerProductoTop() {
+    const productosCantidad = {};
+    
+    for (let clienta in pedidos) {
+        pedidos[clienta].forEach(pedido => {
+            if (!productosCantidad[pedido.producto]) {
+                productosCantidad[pedido.producto] = 0;
+            }
+            productosCantidad[pedido.producto] += pedido.cantidad;
+        });
+    }
+    
+    let productoTop = { nombre: '', cantidad: 0 };
+    for (let producto in productosCantidad) {
+        if (productosCantidad[producto] > productoTop.cantidad) {
+            productoTop = { nombre: producto, cantidad: productosCantidad[producto] };
+        }
+    }
+    
+    return productoTop;
+}
