@@ -62,3 +62,10 @@ window.verProductosYClientas = verProductosYClientas;
 window.abrirModalEnviarWhatsApp = abrirModalEnviarWhatsApp;
 window.generarPDF = generarPDF;
 window.confirmarReiniciarInventario = confirmarReiniciarInventario;
+// Nuevas funciones
+window.eliminarClienta = eliminarClienta;
+window.buscarClientaEnTiempoReal = buscarClientaEnTiempoReal;
+window.verDetalleClienta = verDetalleClienta;
+window.enviarResumenCompleto = enviarResumenCompleto;
+window.enviarPorClienta = enviarPorClienta;
+window.enviarMensajeClienta = enviarMensajeClienta;
