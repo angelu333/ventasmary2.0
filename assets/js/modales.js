@@ -266,7 +266,8 @@ function abrirModalGestionarClientas() {
     }
 
     let contenido = `
-        <h3><i data-feather="users"></i> Gestionar Clientas</h3>
+        <h3 style="margin-bottom: 1.5rem;"><i data-feather="users"></i> Gestionar Clientas</h3>
+        <p style="margin-bottom: 1rem; color: #7d6450;">Total de clientas: <strong>${Object.keys(pedidos).length}</strong></p>
         <div class="clientas-gestion-list">
     `;
 
@@ -280,8 +281,8 @@ function abrirModalGestionarClientas() {
                 <div class="clienta-info">
                     <strong><i data-feather="user"></i> ${clienta}</strong>
                     <div class="clienta-stats">
-                        <span><i data-feather="package"></i> ${cantidadProductos} productos</span>
-                        <span><i data-feather="dollar-sign"></i> ${totalCompras}</span>
+                        <span><i data-feather="package"></i> <strong>${cantidadProductos}</strong> productos</span>
+                        <span><i data-feather="dollar-sign"></i> <strong>$${totalCompras}</strong></span>
                     </div>
                 </div>
                 <button onclick="eliminarClienta('${clientaSafe}')" class="btn btn-danger btn-small">
@@ -456,7 +457,7 @@ function verProductosYClientas() {
     }
 
     let contenido = `
-        <h3><i data-feather="package"></i> Productos Vendidos</h3>
+        <h3 style="margin-bottom: 1.5rem;"><i data-feather="package"></i> Productos Vendidos</h3>
         <div class="productos-list">
     `;
 
@@ -466,20 +467,20 @@ function verProductosYClientas() {
             <div class="producto-card">
                 <div class="producto-header">
                     <strong><i data-feather="tag"></i> ${prod.nombre}</strong>
-                    <span class="precio-tag">${prod.precio}</span>
+                    <span class="precio-tag">$${prod.precio}</span>
                 </div>
                 <div class="producto-stats">
                     <div class="stat-item">
                         <i data-feather="hash"></i>
-                        <span>${prod.cantidad} vendidos</span>
+                        <span><strong>${prod.cantidad}</strong> vendidos</span>
                     </div>
                     <div class="stat-item">
                         <i data-feather="users"></i>
-                        <span>${prod.clientas.length} clientas</span>
+                        <span><strong>${prod.clientas.length}</strong> clientas</span>
                     </div>
                     <div class="stat-item">
                         <i data-feather="dollar-sign"></i>
-                        <span>Total: ${prod.total}</span>
+                        <span>Total: <strong>$${prod.total}</strong></span>
                     </div>
                 </div>
             </div>
@@ -508,10 +509,16 @@ function abrirModalEnviarWhatsApp() {
         return;
     }
 
+    const totalVentas = calcularTotalVentas();
+    const totalClientas = Object.keys(pedidos).length;
+
     const contenido = `
-        <h3><i data-feather="message-circle"></i> Enviar Resumen por WhatsApp</h3>
+        <h3 style="margin-bottom: 1rem;"><i data-feather="message-circle"></i> Enviar por WhatsApp</h3>
         <div class="whatsapp-container">
-            <p>Selecciona qué enviar:</p>
+            <div style="background: #f9f1e8; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+                <p style="margin: 0; color: #7d6450;"><strong>${totalClientas}</strong> clientas • Total: <strong>$${totalVentas}</strong></p>
+            </div>
+            <p style="font-weight: 500;">Selecciona qué enviar:</p>
             <div class="whatsapp-options">
                 <button onclick="enviarResumenCompleto()" class="btn btn-primary btn-large">
                     <i data-feather="send"></i>
@@ -560,16 +567,24 @@ function enviarResumenCompleto() {
 
 function enviarPorClienta() {
     let contenido = `
-        <h3><i data-feather="user"></i> Selecciona una Clienta</h3>
+        <h3 style="margin-bottom: 1.5rem;"><i data-feather="user"></i> Selecciona una Clienta</h3>
         <div class="clientas-whatsapp-list">
     `;
 
     for (let clienta in pedidos) {
         const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const totalClienta = pedidos[clienta].reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
+        const cantidadProductos = pedidos[clienta].reduce((sum, p) => sum + p.cantidad, 0);
+        
         contenido += `
-            <button onclick="enviarMensajeClienta('${clientaSafe}')" class="btn btn-outline btn-large">
-                <i data-feather="message-circle"></i>
-                ${clienta}
+            <button onclick="enviarMensajeClienta('${clientaSafe}')" class="btn btn-outline btn-large" style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-feather="message-circle"></i>
+                    ${clienta}
+                </span>
+                <span style="font-size: 0.875rem; color: #9d8066;">
+                    ${cantidadProductos} productos • $${totalClienta}
+                </span>
             </button>
         `;
     }
