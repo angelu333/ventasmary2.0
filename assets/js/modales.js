@@ -316,7 +316,7 @@ function eliminarClienta(nombre) {
 function editarPedidosClienta(nombreClienta) {
     const pedidosClienta = pedidos[nombreClienta];
     const totalCompras = pedidosClienta.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
-    
+
     let contenido = `
         <h3 style="margin-bottom: 1rem;"><i data-feather="user"></i> ${nombreClienta}</h3>
         <div style="background: #f9f1e8; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
@@ -329,7 +329,7 @@ function editarPedidosClienta(nombreClienta) {
         const subtotal = pedido.precio * pedido.cantidad;
         const colorInfo = pedido.color ? ` <span class="color-tag">${pedido.color}</span>` : '';
         const clientaSafe = nombreClienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
-        
+
         contenido += `
             <div class="pedido-editar-item">
                 <div class="pedido-editar-info">
@@ -369,7 +369,7 @@ function editarPedidosClienta(nombreClienta) {
 function eliminarPedidoIndividual(nombreClienta, index) {
     if (confirm('¿Eliminar este pedido?')) {
         pedidos[nombreClienta].splice(index, 1);
-        
+
         // Si no quedan pedidos, eliminar clienta
         if (pedidos[nombreClienta].length === 0) {
             delete pedidos[nombreClienta];
@@ -387,7 +387,7 @@ function eliminarPedidoIndividual(nombreClienta, index) {
 // Editar pedido individual
 function editarPedidoIndividual(nombreClienta, index) {
     const pedido = pedidos[nombreClienta][index];
-    
+
     const contenido = `
         <h3 style="margin-bottom: 1rem;"><i data-feather="edit-2"></i> Editar Pedido</h3>
         <p style="margin-bottom: 1rem; color: #7d6450;"><strong>${nombreClienta}</strong> - ${pedido.producto}</p>
@@ -418,7 +418,7 @@ function editarPedidoIndividual(nombreClienta, index) {
             </button>
         </div>
     `;
-    
+
     abrirModal(contenido);
     if (typeof feather !== 'undefined') feather.replace();
 }
@@ -479,7 +479,7 @@ function agregarPedidoAClienta(nombreClienta) {
             </button>
         </div>
     `;
-    
+
     abrirModal(contenido);
     if (typeof feather !== 'undefined') feather.replace();
     setTimeout(() => document.getElementById('nuevoProducto').focus(), 100);
@@ -706,7 +706,7 @@ function verProductosYClientas() {
 // Ver detalle de producto
 function verDetalleProducto(nombreProducto) {
     const clientasConProducto = [];
-    
+
     for (let clienta in pedidos) {
         pedidos[clienta].forEach((pedido, index) => {
             if (pedido.producto === nombreProducto) {
@@ -729,7 +729,7 @@ function verDetalleProducto(nombreProducto) {
         const clientaSafe = item.nombre.replace(/'/g, "\\'").replace(/"/g, '\\"');
         const colorInfo = item.pedido.color ? ` <span class="color-tag">${item.pedido.color}</span>` : '';
         const subtotal = item.pedido.precio * item.pedido.cantidad;
-        
+
         contenido += `
             <div class="clienta-producto-item">
                 <div class="clienta-producto-info">
@@ -842,12 +842,12 @@ function confirmarAgregarClientaAProducto(nombreProducto) {
 function eliminarPedidoProducto(nombreClienta, index) {
     if (confirm(`¿Eliminar este pedido de ${nombreClienta}?`)) {
         pedidos[nombreClienta].splice(index, 1);
-        
+
         // Si la clienta no tiene más pedidos, eliminarla
         if (pedidos[nombreClienta].length === 0) {
             delete pedidos[nombreClienta];
         }
-        
+
         guardarPedidos();
         mostrarNotificacion('Pedido eliminado', 'success');
         verProductosYClientas();
@@ -1097,24 +1097,24 @@ function generarPDF() {
         const { jsPDF } = window.jspdf;
         // Formato horizontal (landscape)
         const doc = new jsPDF('landscape', 'mm', 'a4');
-        
+
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 15;
         const contentWidth = pageWidth - (margin * 2);
-        
+
         // Título
         doc.setFontSize(18);
         doc.setTextColor(139, 69, 19);
         doc.text('VENTAS MARY', pageWidth / 2, 15, { align: 'center' });
-        
+
         // Fecha
         doc.setFontSize(9);
         doc.setTextColor(100);
-        const fecha = new Date().toLocaleDateString('es-ES', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        const fecha = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
         doc.text(`Fecha: ${fecha}`, pageWidth / 2, 22, { align: 'center' });
 
@@ -1134,7 +1134,7 @@ function generarPDF() {
 
         for (let clienta in pedidos) {
             const alturaClienta = calcularAlturaClienta(clienta);
-            
+
             // Si no cabe en la página actual, crear nueva página
             if (y + alturaClienta > maxY) {
                 doc.addPage();
@@ -1158,18 +1158,18 @@ function generarPDF() {
                 const subtotal = pedido.precio * pedido.cantidad;
                 totalClienta += subtotal;
                 const colorInfo = pedido.color ? ` (${pedido.color})` : '';
-                
+
                 // Producto
                 doc.text(`${pedido.producto}${colorInfo}`, margin + 5, y);
-                
+
                 // Cantidad
                 doc.text(`${pedido.cantidad} x $${pedido.precio}`, margin + 120, y);
-                
+
                 // Subtotal
                 doc.setFont(undefined, 'bold');
                 doc.text(`$${subtotal}`, margin + 160, y, { align: 'right' });
                 doc.setFont(undefined, 'normal');
-                
+
                 y += lineHeight;
             });
 
@@ -1201,4 +1201,137 @@ function confirmarReiniciarInventario() {
         irAInicio();
     }
     cerrarSidebar();
+}
+
+
+// Generar PDF con diseño en columnas
+function generarPDF() {
+    if (Object.keys(pedidos).length === 0) {
+        mostrarNotificacion('No hay pedidos para generar PDF', 'error');
+        cerrarSidebar();
+        return;
+    }
+
+    mostrarNotificacion('Generando PDF...', 'info');
+    cerrarSidebar();
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape', 'mm', 'a4');
+        
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 10;
+        const numColumns = 4; // 4 columnas
+        const columnWidth = (pageWidth - (margin * 2) - (3 * 3)) / numColumns; // 3mm de espacio entre columnas
+        const maxY = pageHeight - margin;
+        
+        // Título
+        doc.setFontSize(16);
+        doc.setTextColor(139, 69, 19);
+        doc.text('Ventas Mary - Reporte de Pedidos', pageWidth / 2, margin + 5, { align: 'center' });
+        
+        // Fecha
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        const fecha = new Date().toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        doc.text(`Fecha: ${fecha}`, pageWidth / 2, margin + 10, { align: 'center' });
+
+        // Preparar datos de clientas
+        const clientasArray = [];
+        for (let clienta in pedidos) {
+            const pedidosClienta = pedidos[clienta];
+            const totalClienta = pedidosClienta.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
+            
+            clientasArray.push({
+                nombre: clienta,
+                pedidos: pedidosClienta,
+                total: totalClienta
+            });
+        }
+
+        // Calcular altura de cada clienta
+        function calcularAlturaClienta(clientaData) {
+            const headerHeight = 6;
+            const pedidoHeight = 3.5;
+            const totalHeight = 4;
+            const padding = 2;
+            return headerHeight + (clientaData.pedidos.length * pedidoHeight) + totalHeight + padding;
+        }
+
+        let currentColumn = 0;
+        let currentY = margin + 15;
+        let clientaIndex = 0;
+
+        while (clientaIndex < clientasArray.length) {
+            const clientaData = clientasArray[clientaIndex];
+            const alturaClienta = calcularAlturaClienta(clientaData);
+            
+            // Calcular posición X de la columna actual
+            const columnX = margin + (currentColumn * (columnWidth + 3));
+            
+            // Si no cabe en la columna actual, pasar a la siguiente
+            if (currentY + alturaClienta > maxY) {
+                currentColumn++;
+                currentY = margin + 15;
+                
+                // Si ya no hay más columnas, crear nueva página
+                if (currentColumn >= numColumns) {
+                    doc.addPage();
+                    currentColumn = 0;
+                    currentY = margin;
+                }
+                continue; // Volver a intentar con la nueva posición
+            }
+
+            // Dibujar fondo amarillo para el nombre de la clienta
+            doc.setFillColor(255, 255, 153); // Amarillo suave
+            doc.rect(columnX, currentY, columnWidth, 5, 'F');
+            
+            // Nombre de la clienta
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0);
+            doc.text(`Cliente: ${clientaData.nombre}`, columnX + 1, currentY + 3.5);
+            currentY += 6;
+
+            // Pedidos
+            doc.setFontSize(7);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(50);
+            
+            clientaData.pedidos.forEach(pedido => {
+                const colorInfo = pedido.color ? ` (${pedido.color})` : '';
+                const subtotal = pedido.precio * pedido.cantidad;
+                const linea = `- ${pedido.producto}${colorInfo}: ${pedido.cantidad} x $${pedido.precio} = $${subtotal}`;
+                
+                // Dividir texto si es muy largo
+                const lines = doc.splitTextToSize(linea, columnWidth - 2);
+                lines.forEach(line => {
+                    doc.text(line, columnX + 1, currentY);
+                    currentY += 3.5;
+                });
+            });
+
+            // Total de la clienta
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(8);
+            doc.text(`Total: $${clientaData.total}`, columnX + 1, currentY);
+            currentY += 5;
+
+            clientaIndex++;
+        }
+
+        // Guardar PDF
+        const nombreArchivo = `ventas-mary-${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(nombreArchivo);
+        mostrarNotificacion('PDF generado correctamente', 'success');
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        mostrarNotificacion('Error al generar PDF. Verifica que jsPDF esté cargado.', 'error');
+    }
 }
