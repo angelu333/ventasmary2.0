@@ -3,23 +3,23 @@
 // Inicializar la aplicación cuando se carga la página
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🚀 Inicializando Ventas Mary PWA...');
-    
+
     // Verificar si es PWA
     if (esPWA()) {
         console.log('📱 Ejecutándose como PWA');
         document.body.classList.add('pwa-mode');
         isInstalled = true;
     }
-    
+
     // Cargar datos de Firebase
     cargarDatos();
     cargarInventario();
-    
+
     // Verificar conectividad inicial (sin mostrar notificación)
     setTimeout(() => {
         verificarConectividad();
     }, 2000);
-    
+
     // Configurar autocompletado
     configurarAutocompletado();
 
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
         actualizarEstadisticasRapidas();
     }, 1000);
-    
+
     // Cargar selector de inventario
     setTimeout(() => {
         cambiarModoProducto('inventario');
@@ -38,10 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
         feather.replace();
         console.log('✅ Iconos de Feather inicializados');
     }
-    
+
     // Mostrar botón de instalación si está disponible
     setTimeout(mostrarBotonInstalar, 2000);
-    
+
     console.log('✅ Ventas Mary PWA inicializada correctamente');
 });
 
@@ -95,3 +95,9 @@ window.guardarProductoInventario = guardarProductoInventario;
 window.editarProductoInventario = editarProductoInventario;
 window.actualizarProductoInventario = actualizarProductoInventario;
 window.eliminarProductoInventario = eliminarProductoInventario;
+window.filtrarClientasGestion = filtrarClientasGestion;
+window.sugerirProductosModal = sugerirProductosModal;
+window.seleccionarProductoModal = seleccionarProductoModal;
+window.sugerirClientasModal = sugerirClientasModal;
+window.seleccionarClientaModal = seleccionarClientaModal;
+

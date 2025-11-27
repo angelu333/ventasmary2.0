@@ -267,16 +267,53 @@ function abrirModalGestionarClientas() {
 
     let contenido = `
         <h3 style="margin-bottom: 1.5rem;"><i data-feather="users"></i> Gestionar Clientas</h3>
-        <p style="margin-bottom: 1rem; color: #7d6450;">Total de clientas: <strong>${Object.keys(pedidos).length}</strong></p>
-        <div class="clientas-gestion-list">
+        
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+            <input type="text" id="buscarClientaGestionInput" class="form-input" placeholder="Buscar clienta por nombre..." onkeyup="filtrarClientasGestion(this.value)">
+        </div>
+
+        <p style="margin-bottom: 1rem; color: #7d6450;">Total de clientas: <strong id="totalClientasBadge">${Object.keys(pedidos).length}</strong></p>
+        <div id="listaClientasGestion" class="clientas-gestion-list">
     `;
 
-    for (let clienta in pedidos) {
+    contenido += generarHtmlListaClientas(Object.keys(pedidos));
+
+    contenido += `</div>`;
+    abrirModal(contenido);
+    cerrarSidebar();
+    if (typeof feather !== 'undefined') feather.replace();
+}
+
+function filtrarClientasGestion(query) {
+    const listaDiv = document.getElementById('listaClientasGestion');
+    if (!listaDiv) return;
+
+    const queryLower = query.toLowerCase();
+    const clientasFiltradas = Object.keys(pedidos).filter(clienta =>
+        clienta.toLowerCase().includes(queryLower)
+    );
+
+    listaDiv.innerHTML = generarHtmlListaClientas(clientasFiltradas);
+    if (typeof feather !== 'undefined') feather.replace();
+}
+
+function generarHtmlListaClientas(listaClientas) {
+    let html = '';
+
+    if (listaClientas.length === 0) {
+        return `
+            <div class="empty-state" style="padding: 2rem 0;">
+                <p>No se encontraron resultados</p>
+            </div>
+        `;
+    }
+
+    listaClientas.forEach(clienta => {
         const totalCompras = pedidos[clienta].reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
         const cantidadProductos = pedidos[clienta].reduce((sum, p) => sum + p.cantidad, 0);
         const clientaSafe = clienta.replace(/'/g, "\\'").replace(/"/g, '\\"');
 
-        contenido += `
+        html += `
             <div class="clienta-gestion-item" onclick="editarPedidosClienta('${clientaSafe}')" style="cursor: pointer;">
                 <div class="clienta-info">
                     <strong><i data-feather="user"></i> ${clienta}</strong>
@@ -295,12 +332,9 @@ function abrirModalGestionarClientas() {
                 </div>
             </div>
         `;
-    }
+    });
 
-    contenido += `</div>`;
-    abrirModal(contenido);
-    cerrarSidebar();
-    if (typeof feather !== 'undefined') feather.replace();
+    return html;
 }
 
 function eliminarClienta(nombre) {
@@ -457,7 +491,10 @@ function agregarPedidoAClienta(nombreClienta) {
         <p style="margin-bottom: 1rem; color: #7d6450;">Clienta: <strong>${nombreClienta}</strong></p>
         <div class="input-group">
             <label class="input-label">Producto</label>
-            <input type="text" id="nuevoProducto" class="form-input" placeholder="Nombre del producto">
+            <div class="autocomplete-container">
+                <input type="text" id="nuevoProducto" class="form-input" placeholder="Nombre del producto" onkeyup="sugerirProductosModal(this.value)" autocomplete="off">
+                <div id="sugerenciasProductosModal" class="suggestions-list"></div>
+            </div>
         </div>
         <div class="form-row">
             <div class="input-group">
@@ -483,6 +520,72 @@ function agregarPedidoAClienta(nombreClienta) {
     abrirModal(contenido);
     if (typeof feather !== 'undefined') feather.replace();
     setTimeout(() => document.getElementById('nuevoProducto').focus(), 100);
+}
+
+function sugerirProductosModal(query) {
+
+    const listaDiv = document.getElementById('sugerenciasProductosModal');
+    if (!listaDiv) {
+
+        return;
+    }
+
+    if (!query || query.length < 1) {
+        listaDiv.style.display = 'none';
+        return;
+    }
+
+
+
+    // Obtener productos únicos de los pedidos existentes
+    const productosUnicos = {};
+    for (let clienta in pedidos) {
+        pedidos[clienta].forEach(p => {
+            if (!productosUnicos[p.producto]) {
+                productosUnicos[p.producto] = p.precio;
+            }
+        });
+    }
+
+    const queryLower = query.toLowerCase();
+    const sugerencias = Object.keys(productosUnicos).filter(prod =>
+        prod.toLowerCase().includes(queryLower)
+    );
+
+    if (sugerencias.length === 0) {
+        listaDiv.style.display = 'none';
+        return;
+    }
+
+    let html = '';
+    sugerencias.forEach(prod => {
+        const precio = productosUnicos[prod];
+        // Resaltar coincidencia
+        const regex = new RegExp(`(${query})`, 'gi');
+        const textoResaltado = prod.replace(regex, '<span class="suggestion-highlight">$1</span>');
+
+        html += `
+            <div class="suggestion-item" onclick="seleccionarProductoModal('${prod.replace(/'/g, "\\'")}', ${precio})">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>${textoResaltado}</span>
+                    <span style="color: #888; font-size: 0.85em;">$${precio}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    listaDiv.innerHTML = html;
+    listaDiv.style.display = 'block';
+}
+
+function seleccionarProductoModal(nombre, precio) {
+    const inputNombre = document.getElementById('nuevoProducto');
+    const inputPrecio = document.getElementById('nuevoPrecio');
+    const listaDiv = document.getElementById('sugerenciasProductosModal');
+
+    if (inputNombre) inputNombre.value = nombre;
+    if (inputPrecio) inputPrecio.value = precio;
+    if (listaDiv) listaDiv.style.display = 'none';
 }
 
 // Confirmar agregar pedido
@@ -767,7 +870,10 @@ function agregarClientaAProducto(nombreProducto) {
         <p style="margin-bottom: 1rem; color: #7d6450;">Producto: <strong>${nombreProducto}</strong></p>
         <div class="input-group">
             <label class="input-label">Nombre de la Clienta</label>
-            <input type="text" id="nombreClientaNueva" class="form-input" placeholder="Nombre de la clienta">
+            <div class="autocomplete-container">
+                <input type="text" id="nombreClientaNueva" class="form-input" placeholder="Nombre de la clienta" onkeyup="sugerirClientasModal(this.value)" autocomplete="off">
+                <div id="sugerenciasClientasModal" class="suggestions-list"></div>
+            </div>
         </div>
         <div class="form-row">
             <div class="input-group">
@@ -788,6 +894,56 @@ function agregarClientaAProducto(nombreProducto) {
     abrirModal(contenido);
     if (typeof feather !== 'undefined') feather.replace();
     setTimeout(() => document.getElementById('nombreClientaNueva').focus(), 100);
+}
+
+function sugerirClientasModal(query) {
+
+    const listaDiv = document.getElementById('sugerenciasClientasModal');
+    if (!listaDiv) {
+
+        return;
+    }
+
+    if (!query || query.length < 1) {
+        listaDiv.style.display = 'none';
+        return;
+    }
+
+    console.log('Pedidos available:', Object.keys(pedidos).length);
+
+    const queryLower = query.toLowerCase();
+    const sugerencias = Object.keys(pedidos).filter(clienta =>
+        clienta.toLowerCase().includes(queryLower)
+    );
+
+    if (sugerencias.length === 0) {
+        listaDiv.style.display = 'none';
+        return;
+    }
+
+    let html = '';
+    sugerencias.forEach(clienta => {
+        // Resaltar coincidencia
+        const regex = new RegExp(`(${query})`, 'gi');
+        const textoResaltado = clienta.replace(regex, '<span class="suggestion-highlight">$1</span>');
+
+        html += `
+            <div class="suggestion-item" onclick="seleccionarClientaModal('${clienta.replace(/'/g, "\\'")}')">
+                ${textoResaltado}
+            </div>
+        `;
+    });
+
+    listaDiv.innerHTML = html;
+    listaDiv.style.display = 'block';
+}
+
+function seleccionarClientaModal(nombre) {
+    const inputNombre = document.getElementById('nombreClientaNueva');
+    const listaDiv = document.getElementById('sugerenciasClientasModal');
+
+    if (inputNombre) inputNombre.value = nombre;
+    if (listaDiv) listaDiv.style.display = 'none';
 }
 
 // Confirmar agregar clienta a producto
@@ -1218,26 +1374,26 @@ function generarPDF() {
     try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape', 'mm', 'a4');
-        
+
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 10;
         const numColumns = 4; // 4 columnas
         const columnWidth = (pageWidth - (margin * 2) - (3 * 3)) / numColumns; // 3mm de espacio entre columnas
         const maxY = pageHeight - margin;
-        
+
         // Título
         doc.setFontSize(16);
         doc.setTextColor(139, 69, 19);
         doc.text('Ventas Mary - Reporte de Pedidos', pageWidth / 2, margin + 5, { align: 'center' });
-        
+
         // Fecha
         doc.setFontSize(8);
         doc.setTextColor(100);
-        const fecha = new Date().toLocaleDateString('es-ES', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        const fecha = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
         doc.text(`Fecha: ${fecha}`, pageWidth / 2, margin + 10, { align: 'center' });
 
@@ -1246,7 +1402,7 @@ function generarPDF() {
         for (let clienta in pedidos) {
             const pedidosClienta = pedidos[clienta];
             const totalClienta = pedidosClienta.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
-            
+
             clientasArray.push({
                 nombre: clienta,
                 pedidos: pedidosClienta,
@@ -1270,15 +1426,15 @@ function generarPDF() {
         while (clientaIndex < clientasArray.length) {
             const clientaData = clientasArray[clientaIndex];
             const alturaClienta = calcularAlturaClienta(clientaData);
-            
+
             // Calcular posición X de la columna actual
             const columnX = margin + (currentColumn * (columnWidth + 3));
-            
+
             // Si no cabe en la columna actual, pasar a la siguiente
             if (currentY + alturaClienta > maxY) {
                 currentColumn++;
                 currentY = margin + 15;
-                
+
                 // Si ya no hay más columnas, crear nueva página
                 if (currentColumn >= numColumns) {
                     doc.addPage();
@@ -1291,7 +1447,7 @@ function generarPDF() {
             // Dibujar fondo amarillo para el nombre de la clienta
             doc.setFillColor(255, 255, 153); // Amarillo suave
             doc.rect(columnX, currentY, columnWidth, 5, 'F');
-            
+
             // Nombre de la clienta
             doc.setFontSize(9);
             doc.setFont(undefined, 'bold');
@@ -1303,12 +1459,12 @@ function generarPDF() {
             doc.setFontSize(7);
             doc.setFont(undefined, 'normal');
             doc.setTextColor(50);
-            
+
             clientaData.pedidos.forEach(pedido => {
                 const colorInfo = pedido.color ? ` (${pedido.color})` : '';
                 const subtotal = pedido.precio * pedido.cantidad;
                 const linea = `- ${pedido.producto}${colorInfo}: ${pedido.cantidad} x $${pedido.precio} = $${subtotal}`;
-                
+
                 // Dividir texto si es muy largo
                 const lines = doc.splitTextToSize(linea, columnWidth - 2);
                 lines.forEach(line => {

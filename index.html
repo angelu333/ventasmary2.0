@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -18,37 +19,38 @@
     <!-- Iconos de Feather -->
     <script src="https://unpkg.com/feather-icons"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#d4a574">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Ventas Mary">
-    <meta name="msapplication-TileImage" content="icon-144.png">
+    <meta name="msapplication-TileImage" content="assets/icons/icon-144.png">
     <meta name="msapplication-TileColor" content="#d4a574">
-    
+
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="assets/icons/icon-152.png">
     <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-192.png">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-16.png">
-    
+
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
     <!-- Header moderno -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
                 <div class="logo-icon">
-                    <i data-feather="sparkles"></i>
+                    <i data-feather="star"></i>
                 </div>
                 <h1 class="logo-text">Ventas Mary</h1>
             </div>
@@ -57,6 +59,7 @@
             </button>
         </div>
     </header>
+
     <!-- Sidebar moderno -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -69,40 +72,47 @@
             <div class="nav-section">
                 <h4 class="nav-section-title">Ventas</h4>
                 <ul class="nav-list">
-                    <li><button onclick="irAInicio()" class="nav-btn"><i data-feather="home"></i><span>Inicio</span></button></li>
-                    <li><button onclick="mostrarResumen()" class="nav-btn"><i data-feather="bar-chart-2"></i><span>Ver Totales</span></button></li>
-                    <li><button onclick="abrirModalEstadisticas()" class="nav-btn"><i data-feather="trending-up"></i><span>Estadísticas</span></button></li>
+                    <li><button onclick="irAInicio()" class="nav-btn"><i
+                                data-feather="home"></i><span>Inicio</span></button></li>
+                    <li><button onclick="mostrarResumen()" class="nav-btn"><i data-feather="bar-chart-2"></i><span>Ver
+                                Totales</span></button></li>
+                    <li><button onclick="abrirModalEstadisticas()" class="nav-btn"><i
+                                data-feather="trending-up"></i><span>Estadísticas</span></button></li>
                 </ul>
             </div>
             <div class="nav-section">
                 <h4 class="nav-section-title">Clientas</h4>
                 <ul class="nav-list">
-                    <li><button onclick="abrirModalBuscarClienta()" class="nav-btn"><i data-feather="search"></i><span>Buscar Clienta</span></button></li>
-                    <li><button onclick="abrirModalGestionarClientas()" class="nav-btn"><i data-feather="users"></i><span>Gestionar Clientas</span></button></li>
+                    <li><button onclick="abrirModalGestionarClientas()" class="nav-btn"><i
+                                data-feather="users"></i><span>Gestionar Clientas</span></button></li>
                 </ul>
             </div>
             <div class="nav-section">
                 <h4 class="nav-section-title">Inventario</h4>
                 <ul class="nav-list">
-                    <li><button onclick="abrirGestionInventario()" class="nav-btn"><i data-feather="box"></i><span>Gestión de Inventario</span></button></li>
-                    <li><button onclick="verProductosYClientas()" class="nav-btn"><i data-feather="package"></i><span>Ver Productos Vendidos</span></button></li>
+                    <li><button onclick="verProductosYClientas()" class="nav-btn"><i
+                                data-feather="package"></i><span>Ver
+                                Productos Vendidos</span></button></li>
                 </ul>
             </div>
             <div class="nav-section">
                 <h4 class="nav-section-title">Herramientas</h4>
                 <ul class="nav-list">
-                    <li><button onclick="abrirModalEnviarWhatsApp()" class="nav-btn"><i data-feather="message-circle"></i><span>Enviar WhatsApp</span></button></li>
-                    <li><button onclick="generarPDF()" class="nav-btn"><i data-feather="file-text"></i><span>Generar PDF</span></button></li>
-                    <li><button onclick="confirmarReiniciarInventario()" class="nav-btn danger"><i data-feather="refresh-cw"></i><span>Reiniciar</span></button></li>
+                    <li><button onclick="abrirModalEnviarWhatsApp()" class="nav-btn"><i
+                                data-feather="message-circle"></i><span>Enviar WhatsApp</span></button></li>
+                    <li><button onclick="generarPDF()" class="nav-btn"><i data-feather="file-text"></i><span>Generar
+                                PDF</span></button></li>
+                    <li><button onclick="confirmarReiniciarInventario()" class="nav-btn danger"><i
+                                data-feather="refresh-cw"></i><span>Reiniciar</span></button></li>
                 </ul>
             </div>
         </nav>
     </div>
-    
-    
+
+
     <!-- Overlay para cerrar sidebar en móvil -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    
+
     <!-- Indicador de estado offline -->
     <div class="offline-indicator">
         📴 Sin conexión - Trabajando en modo offline
@@ -138,11 +148,13 @@
                     <div class="form-body">
                         <!-- Selector de modo -->
                         <div class="modo-selector" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-                            <button id="btn-modo-inventario" onclick="cambiarModoProducto('inventario')" class="btn btn-outline active" style="flex: 1;">
+                            <button id="btn-modo-inventario" onclick="cambiarModoProducto('inventario')"
+                                class="btn btn-outline active" style="flex: 1;">
                                 <i data-feather="package"></i>
                                 Desde Inventario
                             </button>
-                            <button id="btn-modo-manual" onclick="cambiarModoProducto('manual')" class="btn btn-outline" style="flex: 1;">
+                            <button id="btn-modo-manual" onclick="cambiarModoProducto('manual')" class="btn btn-outline"
+                                style="flex: 1;">
                                 <i data-feather="edit-3"></i>
                                 Manual
                             </button>
@@ -169,7 +181,8 @@
                                     <i data-feather="tag"></i>
                                     Nombre del Producto
                                 </label>
-                                <input type="text" id="nombreProducto" class="form-input" placeholder="Ej: Esmalte de uñas rojo">
+                                <input type="text" id="nombreProducto" class="form-input"
+                                    placeholder="Ej: Esmalte de uñas rojo">
                             </div>
                             <div class="input-group">
                                 <label for="precioProducto" class="input-label">
@@ -180,7 +193,8 @@
                             </div>
                         </div>
 
-                        <button onclick="agregarProducto()" class="btn btn-primary btn-large" style="margin-top: 1.5rem;">
+                        <button onclick="agregarProducto()" class="btn btn-primary btn-large"
+                            style="margin-top: 1.5rem;">
                             <i data-feather="arrow-right"></i>
                             Continuar con Clientas
                         </button>
@@ -204,25 +218,9 @@
                                 Nombre de la Clienta
                             </label>
                             <div class="autocomplete-container">
-                                <input type="text" id="nombreClienta" class="form-input" placeholder="Buscar o escribir nombre..." autocomplete="off">
-                                <div class="suggestions-list" id="suggestionsList"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label for="colorProducto" class="input-label">
-                                    <i data-feather="palette"></i>
-                                    Color (Opcional)
-                                </label>
-                                <input type="text" id="colorProducto" class="form-input" placeholder="Ej: Rojo brillante">
-                            </div>
-                            <div class="input-group">
-                                <label for="cantidadProducto" class="input-label">
-                                    <i data-feather="hash"></i>
-                                    Cantidad
-                                </label>
-                                <input type="number" id="cantidadProducto" class="form-input" placeholder="1" min="1" value="1">
+                                <input type="text" id="nombreClienta" class="form-input" </label>
+                                <input type="number" id="cantidadProducto" class="form-input" placeholder="1" min="1"
+                                    value="1">
                             </div>
                         </div>
 
@@ -278,7 +276,10 @@
                         <div class="masivo-add">
                             <h4>Agregar Clientas</h4>
                             <div class="autocomplete-container">
-                                <input type="text" id="nuevaClienteMasivo" class="form-input" placeholder="Buscar y agregar clienta..." autocomplete="off" onkeyup="mostrarSugerenciasMasivo(this.value)" onkeydown="manejarTecladoMasivo(event)">
+                                <input type="text" id="nuevaClienteMasivo" class="form-input"
+                                    placeholder="Buscar y agregar clienta..." autocomplete="off"
+                                    onkeyup="mostrarSugerenciasMasivo(this.value)"
+                                    onkeydown="manejarTecladoMasivo(event)">
                                 <div class="suggestions-list" id="suggestionsMasivo"></div>
                             </div>
                             <button onclick="agregarClienteAModal()" class="btn btn-primary btn-small">
@@ -331,4 +332,5 @@
     <script src="assets/js/voz.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
+
 </html>

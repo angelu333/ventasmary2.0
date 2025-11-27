@@ -629,7 +629,7 @@ body {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   max-height: 200px;
   overflow-y: auto;
-  z-index: var(--z-dropdown);
+  z-index: 1100;
   box-shadow: var(--shadow-lg);
   display: none;
 }
